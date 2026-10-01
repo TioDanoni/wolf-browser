@@ -1,7 +1,7 @@
 {
   "name": "wolf-browser",
   "productName": "Wolf Browser",
-  "version": "0.19.0",
+  "version": "0.19.1",
   "description": "Wolf Browser: navegador baseado em Chromium (Electron) com abas verticais",
   "main": "main.js",
   "scripts": {

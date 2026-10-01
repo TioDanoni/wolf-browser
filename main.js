@@ -1370,11 +1370,24 @@ function dissolveSplit(splitId) {
 // Arrastar uma aba da barra lateral sobre a página: zonas de encaixe.
 let dropzone = null;
 let draggingTab = null;
+let dropTarget = null; // aba que vai dividir a tela com a arrastada
+
+// Com qual aba a arrastada vai dividir a tela. Clicar numa aba para arrastar já a deixa
+// ativa; nesse caso o par é a aba que estava aberta logo antes.
+function splitTargetFor(tab) {
+  if (tab.id !== activeId && !splitPartnerOfActive(tab)) return tabs.get(activeId) || null;
+  const partner = splitPartner(tab);
+  const others = [...tabs.values()].filter((t) => t.id !== tab.id && t !== partner && t.space === tab.space);
+  others.sort((a, b) => (b.lastActive || 0) - (a.lastActive || 0));
+  return others[0] || null;
+}
 
 function showDropzone(tabId) {
   const tab = tabs.get(Number(tabId));
   if (!tab || !win || !lastPageBounds) return;
   draggingTab = tab.id;
+  const target = splitTargetFor(tab);
+  dropTarget = target ? target.id : null;
   if (!dropzone) {
     dropzone = new WebContentsView({
       webPreferences: { sandbox: true, preload: path.join(__dirname, 'page-preload.js') },
@@ -1385,8 +1398,8 @@ function showDropzone(tabId) {
   win.contentView.addChildView(dropzone);
   dropzone.setBounds(lastPageBounds);
   dropzone.setVisible(true);
-  const same = tab.id === activeId || splitPartnerOfActive(tab);
-  const send = () => dropzone.webContents.send('wolf:dropzone', { title: tabInfo(tab).title, same, wide: lastPageBounds.width >= lastPageBounds.height });
+  const same = !target;
+  const send = () => dropzone.webContents.send('wolf:dropzone', { title: target ? tabInfo(target).title : '', same, wide: lastPageBounds.width >= lastPageBounds.height });
   if (dropzone.webContents.isLoading()) dropzone.webContents.once('did-finish-load', send);
   else send();
 }
@@ -1394,6 +1407,7 @@ function showDropzone(tabId) {
 function hideDropzone() {
   dropzone?.setVisible(false);
   draggingTab = null;
+  dropTarget = null;
 }
 
 onUi('split:drag-start', (_e, tabId) => showDropzone(tabId));
@@ -1401,9 +1415,10 @@ onUi('split:drag-start', (_e, tabId) => showDropzone(tabId));
 onUi('split:drag-end', () => setTimeout(hideDropzone, 150));
 handleInternal('split:drop', (_e, zone) => {
   const dragged = draggingTab;
+  const target = dropTarget;
   hideDropzone();
-  if (dragged === null || !['left', 'right', 'top', 'bottom'].includes(zone)) return;
-  createSplit(dragged, activeId, zone);
+  if (dragged === null || target === null || !['left', 'right', 'top', 'bottom'].includes(zone)) return;
+  createSplit(dragged, target, zone);
 });
 handleInternal('split:resize', (_e, delta) => {
   const split = splitOf(tabs.get(activeId));

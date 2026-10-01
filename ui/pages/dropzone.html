@@ -75,9 +75,9 @@
       info = data;
       zone = null;
       $('preview').classList.remove('on');
-      $('title').textContent = data.same ? 'Essa aba já está aberta' : `Dividir com "${data.title.slice(0, 40)}"`;
+      $('title').textContent = data.same ? 'Não há outra aba para dividir' : `Dividir com "${data.title.slice(0, 40)}"`;
       $('text').textContent = data.same
-        ? 'Arraste outra aba da barra lateral para dividir a tela.'
+        ? 'Abra mais uma aba e arraste de novo.'
         : `Solte numa das bordas. Sugestão: ${data.wide ? 'lado a lado (esquerda ou direita)' : 'uma em cima da outra'}.`;
     });
 
