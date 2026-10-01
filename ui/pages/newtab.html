@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Nova aba</title>
+  <link rel="stylesheet" href="pages.css">
+  <link rel="stylesheet" href="theme.css">
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10vh 16px 40px;
+      background:
+        radial-gradient(600px 400px at 50% 12%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 70%),
+        var(--bg);
+      overflow-x: hidden;
+    }
+    .logo {
+      width: 128px;
+      height: 128px;
+      filter: drop-shadow(0 10px 30px color-mix(in srgb, var(--accent) 25%, transparent));
+      animation: rise 0.6s ease both;
+    }
+    #greeting {
+      margin-top: 10px;
+      color: var(--text-dim);
+      font-size: 15px;
+      animation: rise 0.6s 0.05s ease both;
+    }
+    #clock {
+      font-size: 72px;
+      font-weight: 200;
+      letter-spacing: 1px;
+      line-height: 1.1;
+      animation: rise 0.6s 0.1s ease both;
+    }
+    #clock .sep { color: var(--accent); }
+    #date {
+      margin-bottom: 36px;
+      color: var(--text-dim);
+      text-transform: capitalize;
+      animation: rise 0.6s 0.15s ease both;
+    }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(8px); }
+    }
+
+    form {
+      position: relative;
+      width: min(620px, 100%);
+      animation: rise 0.6s 0.2s ease both;
+    }
+    form svg {
+      position: absolute;
+      left: 20px;
+      top: 17px;
+      width: 20px;
+      height: 20px;
+      fill: none;
+      stroke: var(--text-dim);
+      stroke-width: 1.8;
+      stroke-linecap: round;
+    }
+    #q {
+      width: 100%;
+      height: 54px;
+      padding: 0 22px 0 54px;
+      border-radius: 16px;
+      background: var(--surface);
+      font-size: 16px;
+      box-shadow: 0 10px 30px rgb(0 0 0 / 0.3);
+    }
+    #q:focus { box-shadow: 0 0 0 4px var(--accent-soft), 0 10px 30px rgb(0 0 0 / 0.3); }
+
+    section { width: min(720px, 100%); animation: rise 0.6s 0.25s ease both; }
+    h2 { margin-top: 44px; text-align: center; }
+    .grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 14px;
+    }
+    .grid a {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      width: 104px;
+      padding: 16px 8px 14px;
+      border-radius: 16px;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 12.5px;
+      text-align: center;
+      transition: background 0.15s, transform 0.15s;
+    }
+    .grid a:hover { background: var(--surface); transform: translateY(-2px); }
+    .grid .name {
+      width: 100%;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    .tile {
+      display: grid;
+      place-items: center;
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      background: var(--surface);
+      box-shadow: inset 0 0 0 1px var(--line), 0 6px 16px rgb(0 0 0 / 0.25);
+      color: var(--accent);
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .grid a:hover .tile { background: var(--surface-hover); }
+    .tile img { width: 26px; height: 26px; }
+    .tile svg {
+      width: 24px;
+      height: 24px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+  </style>
+</head>
+<body>
+  <img class="logo" src="wolf.png" alt="Wolf OS">
+  <div id="greeting"></div>
+  <div id="clock"></div>
+  <div id="date"></div>
+
+  <form id="search">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4-4"/></svg>
+    <input id="q" type="text" placeholder="Pesquise ou digite um endereço" autofocus autocomplete="off">
+  </form>
+
+  <!-- Atalhos: editáveis em Configurações → Página inicial. -->
+  <section id="tiles-section" hidden>
+    <h2>Atalhos</h2>
+    <div class="grid" id="tiles"></div>
+  </section>
+
+  <section id="fav-section" hidden>
+    <h2>Favoritos</h2>
+    <div class="grid" id="favorites"></div>
+  </section>
+
+  <script>
+    let settings = { newtabName: '', newtabClock: true, newtabGreeting: true };
+
+    function tick() {
+      const now = new Date();
+      const [h, m] = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }).split(':');
+      document.getElementById('clock').innerHTML = `${h}<span class="sep">:</span>${m}`;
+      document.getElementById('date').textContent =
+        now.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+      const hour = now.getHours();
+      const hello = hour < 5 ? 'Boa noite' : hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite';
+      document.getElementById('greeting').textContent = settings.newtabName ? `${hello}, ${settings.newtabName}` : hello;
+    }
+    tick();
+    setInterval(tick, 1000);
+
+    // Letra ou ícone do site para cada atalho.
+    function tileFor(item) {
+      const a = document.createElement('a');
+      a.href = item.url;
+      a.title = item.url;
+      const tile = document.createElement('span');
+      tile.className = 'tile';
+      const letter = (item.name || '?').trim()[0]?.toUpperCase() || '?';
+      if (item.favicon) {
+        const img = document.createElement('img');
+        img.src = item.favicon;
+        img.onerror = () => { img.remove(); tile.textContent = letter; };
+        tile.append(img);
+      } else {
+        tile.textContent = letter;
+      }
+      const name = document.createElement('span');
+      name.className = 'name';
+      name.textContent = item.name;
+      a.append(tile, name);
+      return a;
+    }
+
+    window.wolf.invoke('settings:get').then((s) => {
+      settings = s;
+      document.getElementById('clock').hidden = !s.newtabClock;
+      document.getElementById('date').hidden = !s.newtabClock;
+      document.getElementById('greeting').hidden = !s.newtabGreeting;
+      tick();
+      document.getElementById('tiles-section').hidden = s.tiles.length === 0;
+      document.getElementById('tiles').replaceChildren(...s.tiles.map(tileFor));
+      if (!s.newtabFavorites) document.getElementById('fav-section').remove();
+    });
+
+    document.getElementById('search').onsubmit = (e) => {
+      e.preventDefault();
+      const text = document.getElementById('q').value;
+      if (text.trim()) window.wolf.invoke('search', text);
+    };
+
+    // Favoritos salvos (estrela na barra de endereço ou Ctrl+D).
+    window.wolf.invoke('bookmarks:list').then((items) => {
+      const grid = document.getElementById('favorites');
+      const section = document.getElementById('fav-section');
+      if (!section) return; // favoritos desligados nas configurações
+      section.hidden = items.length === 0;
+      for (const b of items.slice(0, 16)) {
+        const a = document.createElement('a');
+        a.href = b.url;
+        a.title = b.url;
+        const tile = document.createElement('span');
+        tile.className = 'tile';
+        const letter = (b.title || '?').trim()[0]?.toUpperCase() || '?';
+        if (b.favicon) {
+          const img = document.createElement('img');
+          img.src = b.favicon;
+          img.onerror = () => { img.remove(); tile.textContent = letter; };
+          tile.append(img);
+        } else {
+          tile.textContent = letter;
+        }
+        const name = document.createElement('span');
+        name.className = 'name';
+        name.textContent = b.title;
+        a.append(tile, name);
+        grid.append(a);
+      }
+    });
+  </script>
+</body>
+</html>

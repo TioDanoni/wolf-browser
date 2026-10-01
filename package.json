@@ -1,0 +1,26 @@
+{
+  "name": "wolf-browser",
+  "productName": "Wolf Browser",
+  "version": "0.19.0",
+  "description": "Wolf Browser: navegador baseado em Chromium (Electron) com abas verticais",
+  "main": "main.js",
+  "scripts": {
+    "start": "env -u ELECTRON_RUN_AS_NODE electron .",
+    "publicar": "bash scripts/publicar.sh"
+  },
+  "author": "Mauricio",
+  "license": "GPL-3.0-or-later",
+  "devDependencies": {
+    "electron": "^44.5.1"
+  },
+  "dependencies": {
+    "@ghostery/adblocker-electron": "^2.18.2",
+    "electron-chrome-extensions": "^4.9.0",
+    "electron-chrome-web-store": "^0.13.0"
+  },
+  "homepage": "https://github.com/TioDanoni/wolf-browser",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TioDanoni/wolf-browser.git"
+  }
+}

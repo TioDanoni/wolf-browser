@@ -1,0 +1,57 @@
+# A cada versão nova (tag v*), monta o pacote pacman e atualiza o repositório
+# pacman que fica na release "repo". Os PCs com Wolf OS pegam a atualização no
+# próximo "pacman -Syu".
+name: Pacote
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency: pacote
+
+jobs:
+  pacote:
+    runs-on: ubuntu-latest
+    container: archlinux:base-devel
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Ferramentas
+        run: pacman -Syu --noconfirm git nodejs npm github-cli
+
+      - uses: actions/checkout@v4
+
+      - name: Montar o pacote
+        run: |
+          useradd -m montador
+          chown -R montador .
+          cd packaging
+          sudo -u montador makepkg -f --nodeps --noconfirm
+
+      - name: Publicar no repositório pacman
+        run: |
+          mkdir repo && cd repo
+          cp ../packaging/wolf-browser-*.pkg.tar.zst .
+          repo-add wolf-browser.db.tar.gz wolf-browser-*.pkg.tar.zst
+          # o GitHub não guarda links simbólicos: sobe os bancos com o nome que o pacman pede
+          for banco in wolf-browser.db wolf-browser.files; do cp -L "$banco" "$banco.real" && mv -f "$banco.real" "$banco"; done
+          rm -f *.tar.gz *.old
+          gh release view repo >/dev/null 2>&1 || gh release create repo --latest=false \
+            --title "Repositório pacman do Wolf Browser" \
+            --notes "Usado pelo pacman para instalar e atualizar o Wolf Browser. Não baixe manualmente."
+          # tira os pacotes antigos e sobe o novo
+          for antigo in $(gh release view repo --json assets -q '.assets[].name' | grep '\.pkg\.tar\.zst$' || true); do
+            gh release delete-asset repo "$antigo" -y
+          done
+          gh release upload repo * --clobber
+
+      - name: Release da versão
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          gh release create "$GITHUB_REF_NAME" packaging/wolf-browser-*.pkg.tar.zst \
+            --title "Wolf Browser ${GITHUB_REF_NAME#v}" --generate-notes

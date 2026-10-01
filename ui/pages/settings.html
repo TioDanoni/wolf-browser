@@ -1,0 +1,1350 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Configurações</title>
+  <link rel="stylesheet" href="pages.css">
+  <link rel="stylesheet" href="theme.css">
+  <style>
+    body { background: var(--bg); }
+    svg {
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 250px minmax(0, 1fr);
+      max-width: 1100px;
+      margin: 0 auto;
+      min-height: 100vh;
+    }
+
+    /* ---------- Menu lateral ---------- */
+
+    nav {
+      position: sticky;
+      top: 0;
+      align-self: start;
+      height: 100vh;
+      padding: 28px 14px 20px 20px;
+      overflow-y: auto;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; margin: 0 6px 20px; }
+    .brand img { width: 34px; height: 34px; }
+    .brand h1 { margin: 0; font-size: 18px; font-weight: 700; }
+    .find {
+      position: relative;
+      display: block;
+      margin-bottom: 14px;
+    }
+    .find svg {
+      position: absolute;
+      left: 11px;
+      top: 10px;
+      width: 15px;
+      height: 15px;
+      color: var(--text-dim);
+    }
+    .find input { width: 100%; height: 36px; padding-left: 34px; border-radius: 10px; font-size: 13px; }
+    nav a {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      height: 38px;
+      padding: 0 12px;
+      border-radius: 10px;
+      color: var(--text-dim);
+      font-size: 13.5px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: background 0.12s, color 0.12s;
+    }
+    nav a:hover { background: var(--surface); color: var(--text); }
+    nav a.on { background: var(--accent-soft); color: var(--accent); }
+    nav a svg { width: 17px; height: 17px; flex: none; }
+
+    /* ---------- Conteúdo ---------- */
+
+    main {
+      width: auto;
+      margin: 0;
+      padding: 28px 32px 120px 20px;
+    }
+    section { scroll-margin-top: 20px; margin-bottom: 36px; }
+    section > h2 {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 4px;
+      color: var(--text);
+      font-size: 20px;
+      font-weight: 650;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+    section > h2 svg { width: 20px; height: 20px; color: var(--accent); }
+    section > .intro { margin: 0 0 14px; color: var(--text-dim); font-size: 13px; }
+
+    .group {
+      overflow: hidden;
+      border-radius: 14px;
+      background: var(--surface);
+      box-shadow: inset 0 0 0 1px var(--line);
+    }
+    .group + .group { margin-top: 12px; }
+    .group-title {
+      margin: 18px 4px 8px;
+      color: var(--text-dim);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.1px;
+      text-transform: uppercase;
+    }
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      min-height: 60px;
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--line);
+    }
+    .row:last-child { border-bottom: 0; }
+    .row:hover { background: none; }
+    .row { flex-wrap: wrap; row-gap: 10px; }
+    .row .text { flex: 1 1 240px; min-width: 0; }
+    .row .label { font-size: 13.5px; font-weight: 550; }
+    .row .hint { margin-top: 3px; color: var(--text-dim); font-size: 12px; line-height: 1.45; }
+    .row .control { flex: 0 1 auto; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; max-width: 100%; }
+    .row.block { flex-direction: column; align-items: stretch; }
+    .row.block .text, .row.block .control { flex: none; width: 100%; }
+    .row.block .control { flex-wrap: wrap; }
+
+    /* Controles */
+    .switch {
+      position: relative;
+      flex: none;
+      width: 40px;
+      height: 23px;
+      padding: 0;
+      border: 0;
+      border-radius: 12px;
+      background: var(--surface-hover);
+      box-shadow: inset 0 0 0 1px var(--line);
+      transition: background 0.2s;
+    }
+    .switch::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      background: var(--text);
+      box-shadow: 0 1px 3px rgb(0 0 0 / 0.4);
+      transition: transform 0.2s cubic-bezier(0.3, 0.9, 0.3, 1.2);
+    }
+    .switch.on { background: var(--accent); }
+    .switch.on::after { transform: translateX(17px); background: #fff; }
+
+    .seg {
+      display: inline-flex;
+      flex-wrap: wrap;
+      max-width: 100%;
+      gap: 2px;
+      padding: 3px;
+      border-radius: 10px;
+      background: var(--frame);
+      box-shadow: inset 0 0 0 1px var(--line);
+    }
+    .seg button {
+      padding: 6px 12px;
+      border: 0;
+      border-radius: 8px;
+      background: none;
+      color: var(--text-dim);
+      font-size: 12.5px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .seg button:hover { background: none; color: var(--text); }
+    .seg button.on { background: var(--surface-hover); color: var(--text); box-shadow: 0 1px 4px rgb(0 0 0 / 0.3); }
+
+    select, .row input[type='text'] { height: 34px; font-size: 13px; }
+    .row input[type='text'] { width: 280px; max-width: 100%; }
+    input[type='range'] { width: 200px; accent-color: var(--accent); }
+    .value { min-width: 52px; color: var(--text-dim); font-size: 12px; text-align: right; }
+    .btn {
+      height: 34px;
+      padding: 0 14px;
+      border: 0;
+      border-radius: 9px;
+      background: var(--surface-hover);
+      color: var(--text);
+      font-size: 12.5px;
+      font-weight: 550;
+    }
+    .btn:hover { background: color-mix(in srgb, var(--surface-hover), white 6%); }
+    .btn.primary { background: var(--accent); color: var(--frame); }
+    .btn.primary:hover { background: color-mix(in srgb, var(--accent) 85%, white); }
+    .btn.danger { background: color-mix(in srgb, var(--danger) 14%, transparent); color: var(--danger); }
+    .btn.ghost { background: none; color: var(--text-dim); }
+    .btn.ghost:hover { background: var(--surface-hover); color: var(--text); }
+    .chip {
+      padding: 6px 12px;
+      border: 0;
+      border-radius: 20px;
+      background: var(--frame);
+      box-shadow: inset 0 0 0 1px var(--line);
+      color: var(--text-dim);
+      font-size: 12.5px;
+    }
+    .chip:hover { background: var(--frame); color: var(--text); }
+    .chip.on { background: var(--accent-soft); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 50%, transparent); color: var(--accent); }
+
+    /* Espaços */
+    .space-row { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+    .space-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .space-head input.space-icon { width: 46px; text-align: center; font-size: 18px; padding: 0; }
+    .space-head input.space-name { width: 200px; flex: 1 1 160px; }
+    .space-tools { display: flex; align-items: center; gap: 4px; margin-left: auto; }
+    .space-tools .btn { height: 32px; }
+    .space-tools .btn:disabled { opacity: 0.35; cursor: default; }
+    .badge-on {
+      padding: 3px 8px;
+      border-radius: 20px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .swatches.small .swatch { width: 22px; height: 22px; }
+    .swatch.none { background: conic-gradient(var(--text-dim) 0 25%, var(--surface-hover) 0 50%, var(--text-dim) 0 75%, var(--surface-hover) 0); color: var(--text); }
+    .emoji-pick { display: flex; flex-wrap: wrap; gap: 4px; }
+    .emoji {
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      border: 0;
+      border-radius: 10px;
+      background: var(--frame);
+      box-shadow: inset 0 0 0 1px var(--line);
+      font-size: 18px;
+    }
+    .emoji:hover { background: var(--frame); transform: translateY(-1px); }
+    .emoji.on { box-shadow: inset 0 0 0 2px var(--accent); background: var(--accent-soft); }
+    .ext-scope { display: flex; flex-direction: column; gap: 10px; }
+
+    .ms-input { display: flex; align-items: center; gap: 6px; }
+    .ms-input input { width: 110px; height: 34px; }
+    .click-pad {
+      padding: 8px 12px;
+      border: 1px dashed var(--accent);
+      border-radius: 9px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    /* Níveis de proteção */
+    .levels { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; width: 100%; }
+    .level {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      padding: 14px;
+      border: 0;
+      border-radius: 14px;
+      background: var(--frame);
+      box-shadow: inset 0 0 0 1px var(--line);
+      color: var(--text);
+      text-align: left;
+    }
+    .level:hover { background: var(--frame); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent); }
+    .level.on { box-shadow: inset 0 0 0 2px var(--accent); }
+    .level b { font-size: 14px; }
+    .level.on b { color: var(--accent); }
+    .level span { color: var(--text-dim); font-size: 12px; line-height: 1.45; }
+
+    /* Temas */
+    .themes { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; width: 100%; }
+    .theme {
+      padding: 8px;
+      border: 0;
+      border-radius: 14px;
+      background: var(--frame);
+      box-shadow: inset 0 0 0 1px var(--line);
+      color: var(--text);
+      text-align: left;
+      transition: transform 0.12s, box-shadow 0.12s;
+    }
+    .theme:hover { background: var(--frame); transform: translateY(-2px); }
+    .theme.on { box-shadow: inset 0 0 0 2px var(--accent); }
+    .theme .mini {
+      display: grid;
+      grid-template-columns: 26% 1fr;
+      gap: 4px;
+      height: 64px;
+      padding: 4px;
+      border-radius: 9px;
+    }
+    .theme .mini .side { border-radius: 5px; display: flex; flex-direction: column; gap: 3px; padding: 4px; }
+    .theme .mini .side i { display: block; height: 5px; border-radius: 3px; opacity: 0.8; }
+    .theme .mini .page { border-radius: 5px; }
+    .theme .name { display: flex; align-items: center; gap: 4px; margin: 8px 4px 2px; font-size: 12.5px; font-weight: 600; }
+    .theme .check { width: 16px; height: 16px; margin-left: auto; color: var(--accent); opacity: 0; }
+    .theme .sub { margin: 0 4px 2px; color: var(--text-dim); font-size: 11px; }
+    .theme.auto .name::before { content: '✦ '; color: var(--accent); }
+    .theme.on .check { opacity: 1; }
+
+    .swatches { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .swatch {
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      box-shadow: inset 0 0 0 2px rgb(0 0 0 / 0.25);
+      transition: transform 0.12s;
+    }
+    .swatch:hover { transform: scale(1.12); }
+    .swatch.on { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px currentColor; }
+    .color-pick {
+      position: relative;
+      width: 28px;
+      height: 28px;
+      overflow: hidden;
+      border-radius: 50%;
+      background: conic-gradient(red, yellow, lime, cyan, blue, magenta, red);
+      cursor: pointer;
+    }
+    .color-pick input { position: absolute; inset: -6px; width: 40px; height: 40px; opacity: 0; cursor: pointer; }
+
+    /* Atalhos da página inicial */
+    .tiles { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+    .tile-row { display: flex; gap: 8px; align-items: center; }
+    .tile-row input[type='text'] { width: auto; }
+    .tile-row .name-in { flex: 0 0 180px; }
+    .tile-row .url-in { flex: 1; }
+
+    /* Personalizar a barra lateral */
+    .preset-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .preset-chips .chip, .chip-x {
+      height: 32px;
+      padding: 0 14px;
+      border: 0;
+      border-radius: 16px;
+      background: var(--surface-hover);
+      color: var(--text);
+      font: inherit;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .preset-chips .chip:hover { background: color-mix(in srgb, var(--surface-hover), white 6%); }
+    .preset-chips .chip.on { background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent); color: var(--accent); }
+    .chip-wrap { display: inline-flex; gap: 2px; }
+    .preset-chips .chip-wrap .chip { border-radius: 16px 4px 4px 16px; padding-right: 10px; }
+    .chip-x { padding: 0 10px; border-radius: 4px 16px 16px 4px; color: var(--text-dim); }
+    .chip-x:hover { background: color-mix(in srgb, var(--danger) 18%, transparent); color: var(--danger); }
+    .order-btn { width: 32px; height: 32px; padding: 0; font-size: 15px; }
+    .order-btn:disabled { opacity: 0.25; pointer-events: none; }
+    .fixed-mark { width: 44px; text-align: center; }
+
+    /* Listas (sites liberados, permissões) */
+    .list-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 18px;
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+    }
+    .list-item:last-child { border-bottom: 0; }
+    .list-item .grow { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .list-item .sub { color: var(--text-dim); font-size: 12px; }
+    .empty-line { padding: 16px 18px; color: var(--text-dim); font-size: 13px; }
+
+    /* Atalhos de teclado */
+    kbd {
+      display: inline-flex;
+      align-items: center;
+      min-width: 24px;
+      height: 26px;
+      padding: 0 8px;
+      border-radius: 7px;
+      background: var(--frame);
+      box-shadow: inset 0 -2px 0 rgb(0 0 0 / 0.35), inset 0 0 0 1px var(--line);
+      color: var(--text);
+      font: 600 12px ui-monospace, 'JetBrains Mono', monospace;
+    }
+    kbd + kbd { margin-left: 4px; }
+    .keys { display: flex; align-items: center; min-width: 150px; justify-content: flex-end; }
+    .keys .none { color: var(--text-faint); font-size: 12px; }
+    .shortcut.recording { background: var(--accent-soft); }
+    .shortcut.recording .keys { color: var(--accent); font-size: 12.5px; font-weight: 600; }
+    .shortcut .btn { height: 30px; padding: 0 10px; font-size: 12px; }
+    .shortcut .changed { color: var(--accent); }
+
+    /* Sobre */
+    .about { display: flex; align-items: center; gap: 18px; padding: 20px 18px; }
+    .about img { width: 72px; height: 72px; }
+    .about b { display: block; font-size: 18px; }
+    .about span { color: var(--text-dim); font-size: 12.5px; }
+
+    /* Janela estreita (ex.: coluna do niri): menu vira uma faixa no topo. */
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: minmax(0, 1fr); }
+      nav {
+        position: sticky;
+        z-index: 5;
+        height: auto;
+        padding: 14px 16px 10px;
+        background: var(--bg);
+        box-shadow: 0 1px 0 var(--line);
+      }
+      .brand { margin-bottom: 10px; }
+      #nav-links { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+      nav a { flex: none; height: 32px; padding: 0 10px; font-size: 12.5px; }
+      main { padding: 20px 16px 100px; }
+      section { scroll-margin-top: 150px; }
+    }
+
+    .hidden-by-search { display: none !important; }
+    #no-results { display: none; margin-top: 40px; color: var(--text-dim); text-align: center; }
+
+    .toast {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      padding: 10px 16px;
+      border-radius: 12px;
+      background: var(--surface);
+      box-shadow: inset 0 0 0 1px var(--line), 0 12px 32px rgb(0 0 0 / 0.5);
+      font-size: 13px;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.2s, transform 0.2s;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: none; }
+    .toast b { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <nav>
+      <div class="brand"><img src="wolf-64.png" alt=""><h1>Configurações</h1></div>
+      <label class="find">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4-4"/></svg>
+        <input type="search" id="search" placeholder="Pesquisar configurações">
+      </label>
+      <div id="nav-links"></div>
+    </nav>
+    <main id="content"></main>
+  </div>
+  <div id="no-results"></div>
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const api = window.wolf;
+    const $ = (id) => document.getElementById(id);
+    let s = null; // configurações atuais
+
+    const ICONS = {
+      general: '<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>',
+      look: '<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 0 0 17c1.2 0 1.8-1 1.3-2l-.6-1.2c-.6-1.1.2-2.3 1.4-2.3H17a3.5 3.5 0 0 0 3.5-3.5C20.5 7 16.7 3.5 12 3.5z"/><circle cx="8" cy="11" r="1"/><circle cx="11" cy="7.5" r="1"/><circle cx="15.5" cy="8.5" r="1"/>',
+      sidebar: '<rect x="3.5" y="4.5" width="17" height="15" rx="3"/><path d="M9.5 4.5v15M6 8.5h1M6 11.5h1"/>',
+      home: '<path d="M4 10.5L12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/>',
+      spaces: '<rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/>',
+      privacy: '<path d="M12 3.5l7 2.5v5.5c0 4.4-3 7.9-7 9-4-1.1-7-4.6-7-9V6z"/><path d="M9 12l2 2 4-4"/>',
+      downloads: '<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
+      keys: '<rect x="3" y="6" width="18" height="12" rx="2.5"/><path d="M7 10h.01M11 10h.01M15 10h.01M7 14h10"/>',
+      about: '<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8h.01"/>',
+      ai: '<path d="M12 3l1.8 4.9L19 9.5l-5.2 1.6L12 16l-1.8-4.9L5 9.5l5.2-1.6zM18.5 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/>',
+      check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+    };
+    const svg = (name) => `<svg viewBox="0 0 24 24">${ICONS[name]}</svg>`;
+    const el = (tag, className, props = {}) => Object.assign(document.createElement(tag), { className }, props);
+
+    // ---------- Salvar ----------
+
+    let toastTimer;
+    function toast(html) {
+      $('toast').innerHTML = html;
+      $('toast').classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => $('toast').classList.remove('show'), 1800);
+    }
+
+    async function set(key, value) {
+      await api.invoke('settings:set', key, value);
+      s = await api.invoke('settings:get');
+      toast('<b>✓</b> Salvo');
+    }
+
+    // ---------- Controles ----------
+
+    function row(label, hint, control, { block = false, keywords = '' } = {}) {
+      const r = el('div', `row${block ? ' block' : ''}`);
+      const text = el('div', 'text');
+      text.append(el('div', 'label', { textContent: label }));
+      if (hint) text.append(el('div', 'hint', { innerHTML: hint }));
+      const c = el('div', 'control');
+      c.append(...[control].flat());
+      r.append(text, c);
+      r.dataset.search = `${label} ${hint || ''} ${keywords}`.toLowerCase();
+      return r;
+    }
+
+    function switchFor(key, onChange) {
+      const b = el('button', `switch${s[key] ? ' on' : ''}`);
+      b.onclick = async () => {
+        b.classList.toggle('on');
+        await set(key, b.classList.contains('on'));
+        onChange?.();
+      };
+      return b;
+    }
+
+    function segmented(key, options, onChange) {
+      const wrap = el('div', 'seg');
+      for (const [value, label] of options) {
+        const b = el('button', value === s[key] ? 'on' : '', { textContent: label });
+        b.onclick = async () => {
+          for (const other of wrap.children) other.classList.toggle('on', other === b);
+          await set(key, value);
+          onChange?.(value);
+        };
+        wrap.append(b);
+      }
+      return wrap;
+    }
+
+    function select(key, options, { number = false } = {}) {
+      const sel = el('select');
+      for (const [value, label] of options) sel.append(el('option', '', { value, textContent: label }));
+      sel.value = String(s[key]);
+      sel.onchange = () => set(key, number ? Number(sel.value) : sel.value);
+      return sel;
+    }
+
+    function textInput(key, placeholder) {
+      const input = el('input', '', { type: 'text', value: s[key] || '', placeholder, spellcheck: false });
+      input.onchange = () => set(key, input.value);
+      return input;
+    }
+
+    // ---------- Seções ----------
+
+    const SECTIONS = [];
+    const section = (id, title, icon, intro, build) => SECTIONS.push({ id, title, icon, intro, build });
+
+    section('general', 'Geral', 'general', 'Como o navegador começa e se comporta.', (g) => {
+      g('Início', [
+        row('Ao abrir o navegador', null, segmented('startup', [['restore', 'Reabrir abas anteriores'], ['newtab', 'Nova aba'], ['home', 'Página inicial']]), { keywords: 'restaurar sessão' }),
+        row('Nova aba abre', 'Endereço de toda aba nova (Ctrl+T, "+ Nova aba"). Vazio = página inicial do Wolf.', textInput('newTabUrl', 'Página inicial do Wolf'), { keywords: 'new tab link padrão' }),
+        row('Botão de início', 'Endereço aberto pelo botão 🏠 e por Alt+Home. Vazio = página inicial do Wolf.', textInput('homeUrl', 'Página inicial do Wolf')),
+      ]);
+      g('Pesquisa e tradução', [
+        row('Mecanismo de pesquisa', 'Usado na barra de endereço e na página inicial.', select('searchEngine', Object.entries(s.engines))),
+        row('Traduzir páginas para', 'Idioma usado em "Traduzir página" (botão direito) e no atalho.', select('translateLang', s.languages)),
+      ]);
+    });
+
+    section('look', 'Aparência', 'look', 'Tema, cores e estilo da janela.', (g) => {
+      const themes = el('div', 'themes');
+      // "Automático" usa as cores do Wolf OS (geradas a partir do papel de parede).
+      const auto = s.systemTheme
+        ? { ...s.systemTheme, name: 'Automático' }
+        : { ...s.themes.wolf, name: 'Automático' };
+      const list = [['system', auto], ...Object.entries(s.themes)];
+      for (const [id, t] of list) {
+        const b = el('button', `theme${s.theme === id ? ' on' : ''}${id === 'system' ? ' auto' : ''}`);
+        b.innerHTML = `
+          <div class="mini" style="background:${t.frame}">
+            <div class="side" style="background:${t.frame}"><i style="background:${t.accent}"></i><i style="background:${t.surface2}"></i><i style="background:${t.surface2}"></i></div>
+            <div class="page" style="background:${t.surface}; box-shadow: inset 0 3px 0 ${t.accent}55"></div>
+          </div>
+          <div class="name">${t.name}${svg('check').replace('<svg', '<svg class="check"')}</div>
+          ${id === 'system' ? `<div class="sub">${s.systemTheme ? 'Segue o papel de parede do Wolf OS' : 'Disponível no Wolf OS'}</div>` : ''}`;
+        b.onclick = async () => {
+          await set('theme', id);
+          await set('accent', null);
+          render();
+        };
+        themes.append(b);
+      }
+
+      const ACCENTS = ['#f5a432', '#fb6351', '#f472b6', '#c084fc', '#818cf8', '#6ea8ff', '#38bdf8', '#2dd4bf', '#5fd08a', '#facc15'];
+      const themeAccent = s.theme === 'system' ? auto.accent : s.themes[s.theme]?.accent ?? s.themes.wolf.accent;
+      const current = (s.accent || themeAccent).toLowerCase();
+      const swatches = el('div', 'swatches');
+      for (const color of ACCENTS) {
+        const b = el('button', `swatch${color === current ? ' on' : ''}`, { title: color });
+        b.style.background = color;
+        b.style.color = color;
+        b.onclick = async () => {
+          await set('accent', color);
+          render();
+        };
+        swatches.append(b);
+      }
+      const pick = el('label', 'color-pick', { title: 'Escolher outra cor' });
+      const input = el('input', '', { type: 'color', value: current });
+      input.onchange = async () => {
+        await set('accent', input.value);
+        render();
+      };
+      pick.append(input);
+      const reset = el('button', 'btn ghost', { textContent: 'Usar a do tema' });
+      reset.onclick = async () => {
+        await set('accent', null);
+        render();
+      };
+      swatches.append(pick, reset);
+
+      g('Tema', [row('Tema', null, themes, { block: true, keywords: 'cores escuro' })]);
+      g('Cores', [
+        row('Cor de destaque', 'Usada em botões, abas ativas, links e ícones.', swatches, { block: true, keywords: 'accent laranja' }),
+        row('Moldura arredondada', 'Espaço e cantos arredondados em volta da página.', switchFor('pageFrame')),
+        row('Barra de rolagem', 'Wolf: fina, arredondada e com a cor de destaque ao passar o mouse. Sites com barra própria mantêm a deles. Voltar para a padrão vale para as páginas abertas ou recarregadas depois.',
+          segmented('scrollbars', [['wolf', 'Wolf'], ['default', 'Padrão']]), { keywords: 'scroll rolagem' }),
+      ]);
+
+      // Barra de endereço: na lateral ou no topo (gota)
+      const visRow = row('Gota no topo', 'Sempre visível: a página desce um pouco para a gota não cobrir nada. Com o mouse: some e aparece quando o mouse encosta no topo da página (Ctrl+L também mostra).',
+        segmented('urlBarVisibility', [['always', 'Sempre visível'], ['hover', 'Só com o mouse em cima']]), { keywords: 'url endereço esconder' });
+      visRow.hidden = s.urlBarPosition !== 'top';
+      g('Barra de endereço', [
+        row('Posição', 'Na barra lateral (junto das abas) ou no topo da página, em formato de gota.',
+          segmented('urlBarPosition', [['sidebar', 'Barra lateral'], ['top', 'Topo (gota)']], (v) => { visRow.hidden = v !== 'top'; }), { keywords: 'url endereço topo gota' }),
+        visRow,
+      ]);
+    });
+
+    section('ai', 'Painel de IA', 'ai', 'Um painel ao lado da página com o site da IA (botão ✦ no rodapé ou Ctrl+Shift+A). A conversa continua quando você fecha e abre o painel; os logins ficam salvos só para o painel.', (g) => {
+      const list = s.aiProviders.map((p) => ({ ...p }));
+      const save = () => set('aiProviders', list);
+      const rows = list.map((p, i) => {
+        const enabled = el('button', `switch${p.enabled ? ' on' : ''}`);
+        enabled.onclick = () => { p.enabled = !p.enabled; enabled.classList.toggle('on', p.enabled); save(); };
+        const controls = [enabled];
+        if (p.custom) {
+          const remove = el('button', 'btn ghost', { textContent: 'Remover' });
+          remove.onclick = async () => { list.splice(i, 1); await save(); render(); };
+          controls.unshift(remove);
+        }
+        return row(p.name, p.url, controls, { keywords: 'ia ai chat' });
+      });
+      g('IAs no painel', rows);
+
+      const name = el('input', '', { type: 'text', placeholder: 'Nome (ex.: Ollama)', maxLength: 30 });
+      const url = el('input', '', { type: 'text', placeholder: 'https://… (ex.: http://192.168.0.10:3000)', spellcheck: false });
+      const add = el('button', 'btn primary', { textContent: 'Adicionar' });
+      add.onclick = async () => {
+        let address = url.value.trim();
+        if (address && !/^https?:\/\//.test(address)) address = `https://${address}`;
+        if (!name.value.trim() || !/^https?:\/\/./.test(address)) { (name.value.trim() ? url : name).focus(); return; }
+        list.push({ id: `custom-${Date.now().toString(36)}`, name: name.value.trim(), url: address, enabled: true, custom: true });
+        await save();
+        toast(`<b>✓</b> ${name.value.trim()} adicionada`);
+        render();
+      };
+      g('Adicionar IA', [row('IA personalizada', 'Qualquer site de IA, inclusive uma que rode no seu servidor (Open WebUI, Ollama…).', [name, url, add], { block: true, keywords: 'ia personalizada custom' })]);
+
+      const range = el('input', '', { type: 'range', min: 300, max: 1000, step: 20, value: s.aiWidth });
+      const value = el('span', 'value', { textContent: `${s.aiWidth} px` });
+      range.oninput = () => { value.textContent = `${range.value} px`; };
+      range.onchange = () => set('aiWidth', Number(range.value));
+      g('Painel', [
+        row('IA que abre primeiro', null, select('aiDefault', list.filter((p) => p.enabled).map((p) => [p.id, p.name]))),
+        row('Lado', null, segmented('aiSide', [['right', 'Direita'], ['left', 'Esquerda']])),
+        row('Largura', 'Também dá para mudar pelas setas no topo do painel.', [range, value]),
+      ]);
+    });
+
+    section('sidebar', 'Barra lateral e abas', 'sidebar', 'Tamanho, comportamento da barra e das abas.', (g) => {
+      const auto = [];
+      const toggleAuto = (mode) => auto.forEach((r) => { r.hidden = mode !== 'auto'; });
+      // Tempo livre, em milissegundos (0 = na hora).
+      const msInput = (key) => {
+        const wrap = el('div', 'ms-input');
+        const input = el('input', '', { type: 'number', min: 0, max: 10000, step: 50, value: s[key] });
+        input.onchange = () => {
+          const v = Math.max(0, Math.min(10000, Math.round(Number(input.value) || 0)));
+          input.value = v;
+          set(key, v);
+        };
+        wrap.append(input, el('span', 'hint', { textContent: 'ms' }));
+        return wrap;
+      };
+      const expand = row('Abrir depois de deixar o mouse em cima por', '1000 ms = 1 segundo. 0 = na hora.', msInput('sidebarExpandDelay'));
+      const collapse = row('Recolher depois de tirar o mouse por', '1000 ms = 1 segundo. 0 = na hora.', msInput('sidebarCollapseDelay'));
+      auto.push(expand, collapse);
+      toggleAuto(s.sidebarMode);
+
+      const range = el('input', '', { type: 'range', min: 220, max: 380, step: 4, value: s.sidebarWidth });
+      const value = el('span', 'value', { textContent: `${s.sidebarWidth} px` });
+      range.oninput = () => { value.textContent = `${range.value} px`; };
+      range.onchange = () => set('sidebarWidth', Number(range.value));
+
+      g('Barra lateral', [
+        row('Modo', 'Automática: fica recolhida e abre por cima da página com o mouse em cima. Ctrl+B alterna.',
+          segmented('sidebarMode', [['expanded', 'Expandida'], ['collapsed', 'Recolhida'], ['auto', 'Automática']], toggleAuto), { keywords: 'recolher expandir hover' }),
+        expand,
+        collapse,
+        row('Largura', 'Largura da barra aberta.', [range, value]),
+      ]);
+      // ----- Personalizar: ordem, o que aparece, modelos -----
+      const DEFAULT_LAYOUT = {
+        sections: ['brand', 'nav', 'address', 'extensions', 'bookmarks', 'spaces', 'pinned', 'tabs', 'footer'],
+        footer: ['media', 'ai', 'history', 'downloads', 'bookmarks', 'extensions', 'settings'],
+        hidden: [],
+      };
+      const SECTION_NAMES = {
+        brand: ['Logo e nome', 'Wolf Browser e o botão de recolher a barra.'],
+        nav: ['Navegação', 'Voltar, avançar, recarregar e página inicial.'],
+        address: ['Barra de endereço', 'Com os avisos de tradução, pop-up e a busca na página.'],
+        extensions: ['Extensões', 'Ícones das extensões instaladas.'],
+        bookmarks: ['Favoritos', 'Grade de favoritos.'],
+        spaces: ['Espaços', 'Ícones para trocar de espaço.'],
+        pinned: ['Abas fixadas', 'Atalhos permanentes do espaço.'],
+        tabs: ['Abas', 'A lista de abas abertas.'],
+        footer: ['Rodapé', 'Mídia, IA, histórico, downloads…'],
+      };
+      const FOOTER_NAMES = { media: 'Mídia tocando', ai: 'Painel de IA', history: 'Histórico', downloads: 'Downloads', bookmarks: 'Favoritos', extensions: 'Extensões', settings: 'Configurações' };
+      const FIXED = ['address', 'tabs']; // não dá para esconder
+      const BUILTIN = [
+        { name: 'Padrão', layout: DEFAULT_LAYOUT },
+        { name: 'Minimalista', layout: { ...DEFAULT_LAYOUT, hidden: ['brand', 'bookmarks', 'label', 'home', 'f:history', 'f:downloads', 'f:bookmarks', 'f:extensions'] } },
+        { name: 'Ferramentas no topo', layout: { ...DEFAULT_LAYOUT, sections: ['brand', 'footer', 'nav', 'address', 'extensions', 'bookmarks', 'spaces', 'pinned', 'tabs'] } },
+        { name: 'Espaços embaixo', layout: { ...DEFAULT_LAYOUT, sections: ['brand', 'nav', 'address', 'extensions', 'bookmarks', 'pinned', 'tabs', 'spaces', 'footer'] } },
+      ];
+      const layout = JSON.parse(JSON.stringify(s.sidebarLayout || DEFAULT_LAYOUT));
+      const same = (a, b) => JSON.stringify([a.sections, a.footer, [...a.hidden].sort()]) === JSON.stringify([b.sections, b.footer, [...b.hidden].sort()]);
+      const applyLayout = async (next) => { await set('sidebarLayout', next); render(); };
+      const visibleSwitch = (id) => {
+        const b = el('button', `switch${layout.hidden.includes(id) ? '' : ' on'}`, { title: 'Mostrar na barra' });
+        b.onclick = () => {
+          const on = b.classList.toggle('on');
+          layout.hidden = layout.hidden.filter((h) => h !== id);
+          if (!on) layout.hidden.push(id);
+          set('sidebarLayout', layout).then(markPreset);
+        };
+        return b;
+      };
+      const orderList = (key, names, hideId) => {
+        const box = el('div', 'group');
+        layout[key].forEach((id, i) => {
+          const item = el('div', 'list-item');
+          const text = el('div', 'grow');
+          const [name, sub] = [names[id]].flat();
+          text.append(el('div', '', { textContent: name }));
+          if (sub) text.append(el('div', 'sub', { textContent: sub }));
+          const move = (step) => {
+            const b = el('button', 'btn ghost order-btn', { textContent: step < 0 ? '↑' : '↓', title: step < 0 ? 'Subir' : 'Descer' });
+            b.disabled = i + step < 0 || i + step >= layout[key].length;
+            b.onclick = () => {
+              const list = layout[key];
+              [list[i], list[i + step]] = [list[i + step], list[i]];
+              applyLayout(layout);
+            };
+            return b;
+          };
+          item.append(text, move(-1), move(1));
+          const hid = hideId(id);
+          if (hid) item.append(visibleSwitch(hid));
+          else item.append(el('span', 'sub fixed-mark', { textContent: 'sempre' }));
+          item.dataset.search = `${name} ${sub || ''} personalizar ordem esconder mostrar`.toLowerCase();
+          box.append(item);
+        });
+        return box;
+      };
+
+      const presets = el('div', 'preset-chips');
+      const markPreset = () => {
+        for (const chip of presets.querySelectorAll('.chip')) chip.classList.toggle('on', same(chip.layout, layout));
+      };
+      const chip = (preset, index = null) => {
+        const b = el('button', 'chip', { textContent: preset.name, title: 'Aplicar este modelo' });
+        b.layout = preset.layout;
+        b.onclick = () => applyLayout(JSON.parse(JSON.stringify(preset.layout)));
+        if (index === null) return b;
+        const wrap = el('span', 'chip-wrap');
+        const remove = el('button', 'chip-x', { textContent: '×', title: 'Apagar este modelo' });
+        remove.onclick = async () => {
+          await set('sidebarPresets', s.sidebarPresets.filter((_p, i) => i !== index));
+          render();
+        };
+        wrap.append(b, remove);
+        return wrap;
+      };
+      presets.append(...BUILTIN.map((p) => chip(p)), ...(s.sidebarPresets || []).map((p, i) => chip(p, i)));
+      markPreset();
+      const presetName = el('input', '', { type: 'text', placeholder: 'Nome do modelo', maxLength: 30 });
+      const savePreset = el('button', 'btn primary', { textContent: 'Salvar como modelo' });
+      savePreset.onclick = async () => {
+        const name = presetName.value.trim();
+        if (!name) { presetName.focus(); return; }
+        const others = (s.sidebarPresets || []).filter((p) => p.name !== name);
+        await set('sidebarPresets', [...others, { name, layout }]);
+        toast(`<b>✓</b> Modelo "${name.replace(/[<>&]/g, '')}" salvo`);
+        render();
+      };
+      const reset = el('button', 'btn danger', { textContent: 'Voltar ao padrão' });
+      reset.onclick = () => applyLayout(JSON.parse(JSON.stringify(DEFAULT_LAYOUT)));
+      g('Personalizar a barra lateral', [
+        row('Modelos prontos', 'Clique para aplicar. Os seus modelos salvos aparecem aqui também.', presets, { block: true, keywords: 'preset modelo personalizar layout' }),
+        row('Salvar o jeito atual', 'Guarda a ordem e o que está escondido como um modelo seu.', [presetName, savePreset], { block: true, keywords: 'preset salvar modelo' }),
+        row('Desfazer tudo', 'Volta a ordem e mostra todos os itens.', reset, { keywords: 'restaurar padrão reset' }),
+      ]);
+      g('Ordem das seções', orderList('sections', SECTION_NAMES, (id) => (FIXED.includes(id) ? null : id)), true);
+      g('Botões do rodapé', orderList('footer', FOOTER_NAMES, (id) => (id === 'settings' ? null : `f:${id}`)), true);
+      g('Itens menores', [
+        row('Botão Voltar', null, visibleSwitch('back'), { keywords: 'navegação esconder' }),
+        row('Botão Avançar', null, visibleSwitch('forward'), { keywords: 'navegação esconder' }),
+        row('Botão Recarregar', null, visibleSwitch('reload'), { keywords: 'navegação esconder' }),
+        row('Botão Página inicial', null, visibleSwitch('home'), { keywords: 'navegação esconder home' }),
+        row('Nome do espaço acima das abas', null, visibleSwitch('label'), { keywords: 'rótulo abas divisor' }),
+        row('Botão "Nova aba"', 'Ctrl+T continua funcionando.', visibleSwitch('newTab'), { keywords: 'nova aba esconder' }),
+      ]);
+
+      g('Abas', [
+        row('Organização das abas', 'Árvore: a aba aberta por outra fica pendurada embaixo dela e o ramo pode ser recolhido. Por site: junta sozinho as abas do mesmo site num grupo que recolhe.',
+          segmented('tabGrouping', [['off', 'Lista'], ['tree', 'Árvore'], ['site', 'Por site']]), { keywords: 'arvore grupo agrupar hierarquia tree' }),
+        row('Tamanho das abas', null, segmented('tabDensity', [['comfortable', 'Confortável'], ['compact', 'Compacta']]), { keywords: 'densidade' }),
+        row('Abas abertas por links', 'Onde aparece uma aba aberta com Ctrl+clique ou por um link.', segmented('linkTabPosition', [['after', 'Ao lado da atual'], ['end', 'No fim da lista']])),
+        row('Ao fechar a última aba', null, segmented('lastTabClose', [['window', 'Fechar a janela'], ['newtab', 'Abrir uma nova aba']])),
+        row('Pôr abas para dormir após', 'Abas sem uso liberam memória e carregam de novo ao clicar. A aba aberta e as que tocam áudio nunca dormem.',
+          select('sleepAfter', [[0, 'Nunca'], [5, '5 minutos'], [15, '15 minutos'], [30, '30 minutos'], [60, '1 hora'], [120, '2 horas']], { number: true }), { keywords: 'memória suspender' }),
+      ]);
+    });
+
+    section('spaces', 'Espaços', 'spaces', 'Ambientes separados: cada espaço tem abas, cookies e logins, histórico e favoritos próprios. Troque pelos ícones na barra lateral, com Ctrl+Alt+1…9 ou deslizando para o lado no touchpad.', (g) => {
+      const COLORS = ['#f5a432', '#fb6351', '#f472b6', '#c084fc', '#818cf8', '#6ea8ff', '#38bdf8', '#2dd4bf', '#5fd08a', '#facc15'];
+      const EMOJIS = ['🐺', '💼', '💻', '🎮', '🎵', '📚', '🛒', '🏠', '🧪', '✨', '🎬', '🌙'];
+      const refresh = async () => { s = await api.invoke('settings:get'); render(); };
+
+      const rows = s.spaces.map((sp, i) => {
+        const r = el('div', 'space-row');
+        const icon = el('input', 'space-icon', { type: 'text', value: sp.icon, title: 'Ícone (emoji)', maxLength: 8 });
+        icon.onchange = async () => { await api.invoke('spaces:update', sp.id, { icon: icon.value }); toast('<b>✓</b> Salvo'); };
+        const name = el('input', 'space-name', { type: 'text', value: sp.name, maxLength: 30 });
+        name.onchange = async () => { await api.invoke('spaces:update', sp.id, { name: name.value }); toast('<b>✓</b> Salvo'); };
+
+        const colors = el('div', 'swatches small');
+        const none = el('button', `swatch none${sp.color ? '' : ' on'}`, { title: 'Cor do tema' });
+        none.onclick = async () => { await api.invoke('spaces:update', sp.id, { color: null }); refresh(); };
+        colors.append(none);
+        for (const color of COLORS) {
+          const b = el('button', `swatch${sp.color === color ? ' on' : ''}`, { title: color });
+          b.style.background = color;
+          b.style.color = color;
+          b.onclick = async () => { await api.invoke('spaces:update', sp.id, { color }); refresh(); };
+          colors.append(b);
+        }
+
+        const tools = el('div', 'space-tools');
+        const up = el('button', 'btn ghost', { textContent: '↑', title: 'Subir' });
+        up.disabled = i === 0;
+        up.onclick = async () => { await api.invoke('spaces:move', sp.id, -1); refresh(); };
+        const down = el('button', 'btn ghost', { textContent: '↓', title: 'Descer' });
+        down.disabled = i === s.spaces.length - 1;
+        down.onclick = async () => { await api.invoke('spaces:move', sp.id, 1); refresh(); };
+        tools.append(up, down);
+        if (sp.id !== 'pessoal') {
+          const del = el('button', 'btn danger', { textContent: 'Apagar' });
+          let armed = false;
+          del.onclick = async () => {
+            if (!armed) {
+              armed = true;
+              del.textContent = `Apagar ${sp.tabs} aba(s), cookies e histórico?`;
+              setTimeout(() => { armed = false; del.textContent = 'Apagar'; }, 4000);
+              return;
+            }
+            await api.invoke('spaces:delete', sp.id);
+            toast(`<b>✓</b> Espaço "${sp.name}" apagado`);
+            refresh();
+          };
+          tools.append(del);
+        } else {
+          tools.append(el('span', 'hint', { textContent: 'Principal' }));
+        }
+        const current = sp.id === s.activeSpace ? el('span', 'badge-on', { textContent: 'atual' }) : null;
+        const head = el('div', 'space-head');
+        head.append(icon, name, ...[current].filter(Boolean), tools);
+        r.append(head, colors, el('div', 'hint', { textContent: `${sp.tabs} aba(s) aberta(s)` }));
+        return r;
+      });
+      const list = el('div', 'group');
+      for (const r of rows) {
+        const row = el('div', 'row block');
+        row.dataset.search = 'espaço espaços pessoal trabalho';
+        row.append(r);
+        list.append(row);
+      }
+      g('Seus espaços', list, true);
+
+      // Novo espaço
+      let pickedIcon = '💼';
+      const picker = el('div', 'emoji-pick');
+      for (const emoji of EMOJIS) {
+        const b = el('button', `emoji${emoji === pickedIcon ? ' on' : ''}`, { textContent: emoji });
+        b.onclick = () => {
+          pickedIcon = emoji;
+          for (const other of picker.children) other.classList.toggle('on', other === b);
+        };
+        picker.append(b);
+      }
+      const newName = el('input', '', { type: 'text', placeholder: 'Nome (ex.: Trabalho)', maxLength: 30 });
+      const create = el('button', 'btn primary', { textContent: 'Criar espaço' });
+      create.onclick = async () => {
+        if (!newName.value.trim()) { newName.focus(); return; }
+        await api.invoke('spaces:add', { name: newName.value.trim(), icon: pickedIcon });
+        toast(`<b>✓</b> Espaço "${newName.value.trim()}" criado`);
+        refresh();
+      };
+      newName.onkeydown = (e) => { if (e.key === 'Enter') create.onclick(); };
+      g('Novo espaço', [row('Criar espaço', 'Escolha um ícone e um nome. Ele começa vazio: sem logins, histórico nem favoritos.', [picker, newName, create], { block: true, keywords: 'novo criar espaço' })]);
+
+      // Extensões por espaço
+      const extRows = s.extensionList.map((ext) => {
+        const control = el('div', 'ext-scope');
+        const all = ext.scope === 'all';
+        const seg = el('div', 'seg');
+        const bAll = el('button', all ? 'on' : '', { textContent: 'Todos os espaços' });
+        const bPick = el('button', all ? '' : 'on', { textContent: 'Escolher' });
+        seg.append(bAll, bPick);
+        const chips = el('div', 'swatches');
+        chips.hidden = all;
+        const chosen = new Set(all ? s.spaces.map((sp) => sp.id) : ext.scope);
+        for (const sp of s.spaces) {
+          const chip = el('button', `chip${chosen.has(sp.id) ? ' on' : ''}`, { textContent: `${sp.icon} ${sp.name}` });
+          chip.onclick = async () => {
+            chip.classList.toggle('on');
+            if (chip.classList.contains('on')) chosen.add(sp.id); else chosen.delete(sp.id);
+            await api.invoke('extensions:scope', ext.id, [...chosen]);
+            toast('<b>✓</b> Salvo');
+          };
+          chips.append(chip);
+        }
+        bAll.onclick = async () => {
+          bAll.classList.add('on'); bPick.classList.remove('on'); chips.hidden = true;
+          await api.invoke('extensions:scope', ext.id, 'all');
+          toast('<b>✓</b> Vale em todos os espaços');
+        };
+        bPick.onclick = async () => {
+          bPick.classList.add('on'); bAll.classList.remove('on'); chips.hidden = false;
+          await api.invoke('extensions:scope', ext.id, [...chosen]);
+        };
+        control.append(seg, chips);
+        return row(ext.name, `Versão ${ext.version}`, control, { block: true, keywords: 'extensão extensões compartilhar' });
+      });
+      g('Extensões por espaço', extRows.length ? extRows : [row('Nenhuma extensão instalada', 'Instale pela Chrome Web Store (painel → Extensões).', [])]);
+    });
+
+    section('home', 'Página inicial', 'home', 'O que aparece quando você abre uma nova aba.', (g) => {
+      const tiles = el('div', 'tiles');
+      const list = s.tiles.map((t) => ({ ...t }));
+      const save = () => set('tiles', list.filter((t) => t.name.trim() && t.url.trim()));
+      const draw = () => {
+        tiles.replaceChildren();
+        list.forEach((tile, i) => {
+          const r = el('div', 'tile-row');
+          const name = el('input', 'name-in', { type: 'text', value: tile.name, placeholder: 'Nome' });
+          const url = el('input', 'url-in', { type: 'text', value: tile.url, placeholder: 'https://…', spellcheck: false });
+          name.onchange = () => { tile.name = name.value; save(); };
+          url.onchange = () => { tile.url = url.value; save(); };
+          const remove = el('button', 'btn ghost', { textContent: 'Remover' });
+          remove.onclick = () => { list.splice(i, 1); draw(); save(); };
+          r.append(name, url, remove);
+          tiles.append(r);
+        });
+        const add = el('button', 'btn', { textContent: '+ Adicionar atalho' });
+        add.onclick = () => {
+          list.push({ name: '', url: '' });
+          draw();
+          tiles.querySelectorAll('.name-in')[list.length - 1]?.focus();
+        };
+        tiles.append(add);
+      };
+      draw();
+
+      g('Página inicial', [
+        row('Seu nome', 'Aparece na saudação ("Boa tarde, Mauricio").', textInput('newtabName', 'Sem nome')),
+        row('Mostrar relógio e data', null, switchFor('newtabClock')),
+        row('Mostrar saudação', null, switchFor('newtabGreeting')),
+        row('Mostrar favoritos', 'Sites salvos com a ★ na barra de endereço.', switchFor('newtabFavorites')),
+      ]);
+      g('Atalhos', [row('Atalhos da página inicial', 'Seus sites e serviços (Proxmox, Docker…).', tiles, { block: true, keywords: 'tiles servidor' })]);
+    });
+
+    section('privacy', 'Proteção e privacidade', 'privacy', 'O que o Wolf bloqueia e como protege você. O escudo na barra de endereço desliga tudo isso para um site específico.', (g) => {
+      // ----- Nível de proteção (liga várias opções de uma vez)
+      const KEYS = Object.keys(s.protectionPresets.standard);
+      const currentPreset = Object.entries(s.protectionPresets).find(([, preset]) => KEYS.every((k) => preset[k] === s[k]))?.[0] || 'custom';
+      const LEVELS = [
+        ['off', 'Desligada', 'Nenhum bloqueio. Os sites funcionam como no Chromium puro.'],
+        ['standard', 'Padrão', 'Anúncios, rastreadores, cookies de terceiros e pop-ups. Não quebra sites.'],
+        ['strict', 'Rigorosa', 'Tudo do Padrão + anti-fingerprinting, DNS seguro e WebRTC bloqueado. Alguns sites e chamadas podem falhar.'],
+      ];
+      const levels = el('div', 'levels');
+      for (const [id, name, text] of LEVELS) {
+        const b = el('button', `level${currentPreset === id ? ' on' : ''}`);
+        b.innerHTML = `<b>${name}</b><span>${text}</span>`;
+        b.onclick = async () => {
+          await api.invoke('protection:preset', id);
+          s = await api.invoke('settings:get');
+          render();
+          toast(`<b>✓</b> Proteção ${name.toLowerCase()}`);
+        };
+        levels.append(b);
+      }
+      const custom = currentPreset === 'custom' ? el('div', 'hint', { textContent: 'Personalizada: você mudou opções individuais abaixo.' }) : null;
+      g('Nível de proteção', [row('Nível', null, [levels, custom].filter(Boolean), { block: true, keywords: 'proteção padrão rigorosa' })]);
+
+      const refresh = async () => { s = await api.invoke('settings:get'); render(); };
+
+      // ----- Bloqueios
+      g('Bloqueios', [
+        row('Anúncios', 'Listas do uBlock. Também esconde os espaços vazios onde os anúncios ficariam.', switchFor('adblock', refresh), { keywords: 'adblock propaganda' }),
+        row('Rastreadores', 'Analytics e scripts que seguem você entre sites (EasyPrivacy).', switchFor('blockTrackers', refresh), { keywords: 'trackers analytics' }),
+        row('Cookies de terceiros', 'Sites de outros domínios dentro da página não recebem nem gravam cookies.', switchFor('blockThirdPartyCookies', refresh), { keywords: 'cookies' }),
+        row('Pop-ups', 'Janelas abertas sem você clicar são bloqueadas. Aparece um aviso com botão para abrir.', switchFor('blockPopups', refresh), { keywords: 'popup janelas' }),
+        row('Anti-fingerprinting', 'Varia levemente canvas, áudio e dados da placa de vídeo para os sites não identificarem seu computador. Vale para páginas abertas depois.', switchFor('antiFingerprint', refresh), { keywords: 'impressão digital fingerprint' }),
+        row('Pedir para não vender meus dados', 'Envia os sinais GPC e "Não rastrear" aos sites.', switchFor('sendGpc', refresh), { keywords: 'gpc dnt não rastrear' }),
+      ]);
+
+      // ----- Rede
+      const isolation = switchFor('siteIsolation');
+      isolation.addEventListener('click', () => toast('<b>✓</b> Salvo · vale ao reiniciar o navegador'));
+      g('Rede', [
+        row('DNS over HTTPS', 'Criptografa as consultas de DNS (ninguém na rede vê quais sites você acessa). No modo seguro, nomes que só existem na sua rede local podem não abrir; endereços IP funcionam.',
+          select('dnsOverHttps', [['off', 'Desligado'], ['automatic', 'Automático (usa se o seu DNS suportar)'], ...Object.entries(s.dohProviders)]), { keywords: 'dns doh cloudflare' }),
+        row('WebRTC', 'Proteger IP local: os sites não veem o endereço da sua rede. Bloquear: nenhuma conexão direta (chamadas de vídeo podem falhar).',
+          segmented('webrtcPolicy', [['default', 'Padrão'], ['public', 'Proteger IP local'], ['disabled', 'Bloquear']], refresh), { keywords: 'webrtc ip vazamento' }),
+        row('Isolamento de sites', 'Cada site roda num processo separado (proteção contra ataques como o Spectre). Recomendado. Mudança vale ao reiniciar.', isolation, { keywords: 'site isolation processo' }),
+      ]);
+
+      // ----- Limpar ao fechar
+      const exitKinds = el('div', 'swatches');
+      for (const [kind, label] of [['history', 'Histórico'], ['cache', 'Cache'], ['cookies', 'Cookies e logins'], ['downloads', 'Lista de downloads']]) {
+        const chip = el('button', `chip${s.clearOnExit.includes(kind) ? ' on' : ''}`, { textContent: label });
+        chip.onclick = async () => {
+          chip.classList.toggle('on');
+          const chosen = [...exitKinds.querySelectorAll('.chip.on')].map((c) => c.dataset.kind);
+          await set('clearOnExit', chosen);
+        };
+        chip.dataset.kind = kind;
+        exitKinds.append(chip);
+      }
+      g('Ao fechar o navegador', [row('Apagar automaticamente', 'Escolha o que é apagado toda vez que o Wolf fecha. Nada marcado = não apaga nada.', exitKinds, { block: true, keywords: 'limpar sair fechar' })]);
+
+      // ----- Permissões
+      const permSelect = (kind) => {
+        const sel = el('select');
+        sel.append(el('option', '', { value: 'ask', textContent: 'Perguntar' }), el('option', '', { value: 'block', textContent: 'Bloquear sempre' }));
+        sel.value = s.permissionDefaults[kind];
+        sel.onchange = () => set('permissionDefaults', { ...s.permissionDefaults, [kind]: sel.value });
+        return sel;
+      };
+      g('Permissões', [
+        row('Câmera e microfone', null, permSelect('media'), { keywords: 'permissão webcam' }),
+        row('Localização', null, permSelect('geolocation'), { keywords: 'permissão gps' }),
+        row('Notificações', null, permSelect('notifications'), { keywords: 'permissão avisos' }),
+      ]);
+
+      const LABELS = { media: 'Câmera / microfone', geolocation: 'Localização', notifications: 'Notificações', 'clipboard-read': 'Área de transferência', midiSysex: 'MIDI', openExternal: 'Abrir aplicativos' };
+      const perms = el('div', 'group');
+      const entries = Object.entries(s.permissions);
+      if (!entries.length) perms.append(el('div', 'empty-line', { textContent: 'Nenhum site pediu permissões ainda.' }));
+      for (const [key, value] of entries) {
+        const [origin, permission] = key.split('|');
+        const item = el('div', 'list-item');
+        const info = el('div', 'grow');
+        info.append(el('div', '', { textContent: origin }), el('div', 'sub', { textContent: `${LABELS[permission] || permission}: ${value === 'allow' ? 'permitido' : 'bloqueado'}` }));
+        const reset = el('button', 'btn ghost', { textContent: 'Redefinir' });
+        reset.onclick = async () => { await api.invoke('permissions:remove', key); refresh(); };
+        item.append(info, reset);
+        perms.append(item);
+      }
+      g('Decisões por site', perms, true);
+
+      const allow = el('div', 'group');
+      if (!s.adblockAllow.length) allow.append(el('div', 'empty-line', { textContent: 'Nenhum. Clique no escudo da barra de endereço para desligar a proteção num site.' }));
+      for (const host of s.adblockAllow) {
+        const item = el('div', 'list-item');
+        const remove = el('button', 'btn ghost', { textContent: 'Proteger de novo' });
+        remove.onclick = async () => { await api.invoke('adblock:allow-remove', host); refresh(); };
+        item.append(el('span', 'grow', { textContent: host }), remove);
+        allow.append(item);
+      }
+      g('Sites com a proteção desligada', allow, true);
+
+      // ----- Limpar agora
+      const kinds = el('div', 'swatches');
+      for (const [kind, label, on] of [['history', 'Histórico', true], ['cache', 'Cache', true], ['cookies', 'Cookies e logins', false], ['downloads', 'Lista de downloads', false]]) {
+        const chip = el('button', `chip${on ? ' on' : ''}`, { textContent: label });
+        chip.dataset.kind = kind;
+        chip.onclick = () => chip.classList.toggle('on');
+        kinds.append(chip);
+      }
+      const clear = el('button', 'btn danger', { textContent: 'Limpar agora' });
+      clear.onclick = async () => {
+        const chosen = [...kinds.querySelectorAll('.chip.on')].map((c) => c.dataset.kind);
+        if (!chosen.length) return;
+        await api.invoke('data:clear', chosen);
+        toast('<b>✓</b> Dados apagados');
+      };
+      g('Dados de navegação', [row('Limpar agora', 'Cookies e logins tiram você das suas contas.', [kinds, clear], { block: true, keywords: 'apagar cache cookies histórico' })]);
+    });
+
+    section('downloads', 'Downloads', 'downloads', 'Onde e como os arquivos são salvos.', (g) => {
+      const path = el('span', 'hint', { textContent: s.downloadDirEffective });
+      const change = el('button', 'btn', { textContent: 'Alterar…' });
+      change.onclick = async () => {
+        const dir = await api.invoke('downloads:choose-dir');
+        if (dir) { path.textContent = dir; toast('<b>✓</b> Pasta alterada'); }
+      };
+      const open = el('button', 'btn ghost', { textContent: 'Abrir' });
+      open.onclick = () => api.invoke('downloads:folder');
+      g('Downloads', [
+        row('Pasta de downloads', null, [path, open, change], { keywords: 'salvar local' }),
+        row('Perguntar onde salvar cada arquivo', null, switchFor('askDownload')),
+        row('Abrir o painel de downloads ao baixar', null, switchFor('openDownloadsPanel')),
+      ]);
+    });
+
+    section('keys', 'Atalhos de teclado', 'keys', 'Clique em "Alterar" e aperte a combinação nova. Esc cancela; Backspace deixa sem atalho.', (g) => {
+      const groups = {};
+      for (const a of s.shortcutList) (groups[a.group] ||= []).push(a);
+      g('Prévia de links', [previewRow()]);
+      for (const [name, actions] of Object.entries(groups)) {
+        g(name, actions.map(shortcutRow));
+      }
+      const resetAll = el('button', 'btn ghost', { textContent: 'Restaurar todos os atalhos' });
+      resetAll.onclick = async () => {
+        s.shortcutList = await api.invoke('shortcuts:reset-all');
+        render();
+        toast('<b>✓</b> Atalhos restaurados');
+      };
+      g('Outros', [row('Fixos', 'Também funcionam: F5 (recarregar), F6 (endereço), F3 e Ctrl+G (procurar), Ctrl+1…9 (ir para a aba), Ctrl+Shift+I (ferramentas), Esc (fechar painel).', resetAll)]);
+    });
+
+    section('about', 'Sobre', 'about', null, (g) => {
+      const box = el('div', 'group');
+      const about = el('div', 'about');
+      about.innerHTML = `<img src="wolf.png" alt=""><div><b>Wolf Browser ${s.versions.app}</b><span>Chromium ${s.versions.chrome} · Electron ${s.versions.electron}</span></div>`;
+      box.append(about);
+      const data = el('button', 'btn', { textContent: 'Abrir pasta de dados' });
+      data.onclick = () => api.invoke('open-data-folder');
+      const log = el('button', 'btn ghost', { textContent: 'Registro de erros' });
+      log.onclick = () => api.invoke('open-error-log');
+      g('', box, true);
+      g('Dados', [row('Pasta de dados', s.dataPath, [log, data])]);
+    });
+
+    // ---------- Atalhos: gravação ----------
+
+    const KEY_NAMES = { ArrowLeft: 'Left', ArrowRight: 'Right', ArrowUp: 'Up', ArrowDown: 'Down', ' ': 'Space', Escape: 'Esc' };
+    function comboFrom(e) {
+      const key = e.key;
+      if (!key || ['Control', 'Shift', 'Alt', 'Meta', 'AltGraph', 'CapsLock', 'Dead'].includes(key)) return null;
+      const name = KEY_NAMES[key] ?? (key.length === 1 ? key.toUpperCase() : key);
+      const parts = [];
+      if (e.ctrlKey) parts.push('Ctrl');
+      if (e.altKey) parts.push('Alt');
+      if (e.shiftKey && (key.length !== 1 || /[a-z]/i.test(key))) parts.push('Shift');
+      if (e.metaKey) parts.push('Super');
+      parts.push(name);
+      return parts.join('+');
+    }
+
+    const keysHtml = (combo) => (combo ? combo.split('+').map((k) => `<kbd>${k === ' ' ? 'Space' : k}</kbd>`).join('') : '<span class="none">Sem atalho</span>');
+    let recording = null;
+
+    function shortcutRow(action) {
+      const keys = el('div', 'keys', { innerHTML: keysHtml(action.keys) });
+      const change = el('button', 'btn', { textContent: 'Alterar' });
+      const reset = el('button', 'btn ghost', { textContent: '↺', title: `Voltar ao padrão (${action.default || 'sem atalho'})` });
+      reset.hidden = action.keys === action.default;
+      const r = row(action.label, action.keys !== action.default ? `Padrão: ${action.default || 'sem atalho'}` : null, [keys, reset, change], { keywords: `${action.keys} atalho` });
+      r.classList.add('shortcut');
+
+      const stop = async () => {
+        recording = null;
+        r.classList.remove('recording');
+        window.removeEventListener('keydown', onKey, true);
+        await api.invoke('shortcuts:capture', false);
+      };
+      const save = async (combo) => {
+        const before = s.shortcutList;
+        s.shortcutList = await api.invoke('shortcuts:set', action.id, combo);
+        await stop();
+        // Avisa se outra ação perdeu o atalho por causa desta.
+        const lost = s.shortcutList.find((a) => a.id !== action.id && a.keys === '' && before.find((b) => b.id === a.id)?.keys === combo);
+        render();
+        toast(lost ? `<b>✓</b> Salvo · "${lost.label}" ficou sem atalho` : '<b>✓</b> Atalho salvo');
+      };
+      const onKey = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.key === 'Escape') { stop(); keys.innerHTML = keysHtml(action.keys); return; }
+        if (e.key === 'Backspace' || e.key === 'Delete') { save(''); return; }
+        const combo = comboFrom(e);
+        if (!combo) return;
+        // Tecla sozinha (sem Ctrl/Alt) só vale para F1–F12.
+        if (!/^(Ctrl|Alt|Super)\+|^F\d{1,2}$|^Shift\+F\d/.test(combo)) {
+          keys.innerHTML = '<span>Use Ctrl, Alt ou uma tecla F…</span>';
+          return;
+        }
+        save(combo);
+      };
+      change.onclick = async () => {
+        if (recording) return;
+        recording = action.id;
+        r.classList.add('recording');
+        keys.innerHTML = 'Pressione a combinação…';
+        await api.invoke('shortcuts:capture', true);
+        window.addEventListener('keydown', onKey, true);
+      };
+      reset.onclick = () => save(null);
+      return r;
+    }
+
+    // Prévia de links: tecla(s) + clique. Para gravar, clique na área segurando as teclas.
+    const MOD_LABEL = { ctrl: 'Ctrl', alt: 'Alt', shift: 'Shift' };
+    function previewRow() {
+      const current = s.previewModifier;
+      const keys = el('div', 'keys', {
+        innerHTML: current === 'off' ? '<span class="none">Desativada</span>' : `${current.split('+').map((k) => `<kbd>${MOD_LABEL[k]}</kbd>`).join('')}<kbd>Clique</kbd>`,
+      });
+      const change = el('button', 'btn', { textContent: 'Alterar' });
+      const reset = el('button', 'btn ghost', { textContent: '↺', title: 'Voltar ao padrão (Shift + clique)' });
+      reset.hidden = current === 'shift';
+      const r = row('Abrir a prévia flutuante', 'Abre o link num cartão flutuante antes de virar aba. Duplo clique dentro da prévia abre como aba. Vale para páginas abertas depois da mudança.', [keys, reset, change], { keywords: 'prévia preview peek link clique' });
+      r.classList.add('shortcut');
+
+      const save = async (value) => {
+        await set('previewModifier', value);
+        render();
+        toast(value === 'off' ? '<b>✓</b> Prévia desativada' : '<b>✓</b> Tecla da prévia salva');
+      };
+      change.onclick = () => {
+        r.classList.add('recording');
+        const pad = el('div', 'click-pad', { textContent: 'Segure a(s) tecla(s) e clique aqui · Backspace desativa · Esc cancela' });
+        keys.replaceChildren(pad);
+        const onKey = (e) => {
+          if (e.key === 'Escape') { cleanup(); render(); }
+          if (e.key === 'Backspace' || e.key === 'Delete') { cleanup(); save('off'); }
+        };
+        const cleanup = () => window.removeEventListener('keydown', onKey, true);
+        window.addEventListener('keydown', onKey, true);
+        pad.onmousedown = (e) => {
+          e.preventDefault();
+          const mods = ['ctrl', 'alt', 'shift'].filter((m) => e[`${m}Key`]);
+          if (!mods.length || (mods.length === 1 && mods[0] === 'ctrl')) {
+            pad.textContent = 'Use Shift, Alt ou uma combinação (Ctrl sozinho já abre aba nova)';
+            return;
+          }
+          cleanup();
+          save(mods.join('+'));
+        };
+      };
+      reset.onclick = () => save('shift');
+      return r;
+    }
+
+    // ---------- Montagem da página ----------
+
+    function render() {
+      const content = $('content');
+      const scroll = document.scrollingElement.scrollTop;
+      content.replaceChildren();
+      $('nav-links').replaceChildren();
+      for (const sec of SECTIONS) {
+        const node = el('section', '', { id: sec.id });
+        node.innerHTML = `<h2>${svg(sec.icon)}${sec.title}</h2>`;
+        if (sec.intro) node.append(el('p', 'intro', { textContent: sec.intro }));
+        // g(título, linhas | elemento pronto, pronto?)
+        const g = (title, rows, ready = false) => {
+          if (title) node.append(el('div', 'group-title', { textContent: title }));
+          if (ready) {
+            node.append(rows);
+            return;
+          }
+          const group = el('div', 'group');
+          group.append(...rows);
+          node.append(group);
+        };
+        sec.build(g);
+        content.append(node);
+
+        const link = el('a', '', { href: `#${sec.id}`, innerHTML: `${svg(sec.icon)}${sec.title}` });
+        link.onclick = (e) => {
+          e.preventDefault();
+          node.scrollIntoView({ behavior: 'smooth' });
+        };
+        $('nav-links').append(link);
+      }
+      document.scrollingElement.scrollTop = scroll;
+      filter();
+      highlight();
+    }
+
+    // Busca: esconde linhas e seções que não combinam.
+    function filter() {
+      const q = $('search').value.trim().toLowerCase();
+      let any = false;
+      for (const sec of document.querySelectorAll('section')) {
+        let visible = 0;
+        for (const r of sec.querySelectorAll('.row')) {
+          const match = !q || r.dataset.search.includes(q) || sec.querySelector('h2').textContent.toLowerCase().includes(q);
+          r.classList.toggle('hidden-by-search', !match);
+          if (match) visible++;
+        }
+        // Títulos de grupo sem linhas visíveis somem junto.
+        for (const title of sec.querySelectorAll('.group-title')) {
+          const group = title.nextElementSibling;
+          const hasRows = !group?.querySelector('.row') || group.querySelector('.row:not(.hidden-by-search)');
+          title.classList.toggle('hidden-by-search', Boolean(q) && !hasRows);
+          group?.classList.toggle('hidden-by-search', Boolean(q) && !hasRows);
+        }
+        sec.classList.toggle('hidden-by-search', Boolean(q) && visible === 0);
+        if (!q || visible) any = true;
+      }
+      $('no-results').style.display = any ? 'none' : 'block';
+      $('no-results').textContent = `Nada encontrado para "${$('search').value}".`;
+    }
+    $('search').oninput = filter;
+
+    // Marca no menu a seção que está na tela.
+    function highlight() {
+      const sections = [...document.querySelectorAll('section:not(.hidden-by-search)')];
+      let current = sections[0];
+      // Com o menu no topo (janela estreita), desconta a altura dele.
+      const offset = innerWidth <= 860 ? document.querySelector('nav').offsetHeight + 40 : 140;
+      for (const sec of sections) if (sec.getBoundingClientRect().top < offset) current = sec;
+      for (const a of document.querySelectorAll('nav a')) a.classList.toggle('on', a.hash === `#${current?.id}`);
+    }
+    window.addEventListener('scroll', highlight, { passive: true });
+
+    // Papel de parede trocou: atualiza a prévia do tema automático.
+    api.on('system-theme', async () => {
+      s = await api.invoke('settings:get');
+      render();
+    });
+
+    api.invoke('settings:get').then((data) => {
+      s = data;
+      render();
+      if (location.hash) document.querySelector(location.hash)?.scrollIntoView();
+    });
+  </script>
+</body>
+</html>

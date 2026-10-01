@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Histórico</title>
+  <link rel="stylesheet" href="pages.css">
+  <link rel="stylesheet" href="theme.css">
+</head>
+<body>
+  <main>
+    <header class="page">
+      <h1>Histórico</h1>
+      <button id="clear" class="danger">Limpar tudo</button>
+    </header>
+    <input id="q" class="search" type="search" placeholder="Pesquisar no histórico" autofocus>
+    <div id="groups"></div>
+  </main>
+
+  <script>
+    const groups = document.getElementById('groups');
+    const q = document.getElementById('q');
+
+    function dayLabel(time) {
+      const d = new Date(time);
+      const today = new Date();
+      const yesterday = new Date(Date.now() - 86400000);
+      if (d.toDateString() === today.toDateString()) return 'Hoje';
+      if (d.toDateString() === yesterday.toDateString()) return 'Ontem';
+      return d.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
+    async function load() {
+      const items = await window.wolf.invoke('history:list', q.value);
+      groups.replaceChildren();
+      if (!items.length) {
+        groups.innerHTML = '<div class="empty">Nada no histórico.</div>';
+        return;
+      }
+      let current = null;
+      let list = null;
+      for (const item of items) {
+        const label = dayLabel(item.time);
+        if (label !== current) {
+          current = label;
+          const h = document.createElement('h2');
+          h.textContent = label;
+          list = document.createElement('div');
+          list.className = 'list';
+          groups.append(h, list);
+        }
+        const row = document.createElement('div');
+        row.className = 'row';
+        const time = document.createElement('span');
+        time.className = 'time';
+        time.textContent = new Date(item.time).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        const main = document.createElement('div');
+        main.className = 'main';
+        const a = document.createElement('a');
+        a.href = item.url;
+        a.textContent = item.title || item.url;
+        const sub = document.createElement('div');
+        sub.className = 'sub';
+        try { sub.textContent = new URL(item.url).host; } catch { sub.textContent = item.url; }
+        main.append(a, sub);
+        const remove = document.createElement('button');
+        remove.className = 'link';
+        remove.textContent = 'Remover';
+        remove.onclick = async () => {
+          await window.wolf.invoke('history:remove', item.time);
+          row.remove();
+        };
+        row.append(time, main, remove);
+        list.append(row);
+      }
+    }
+
+    let timer;
+    q.oninput = () => { clearTimeout(timer); timer = setTimeout(load, 150); };
+    document.getElementById('clear').onclick = async () => {
+      if (!confirm('Apagar todo o histórico?')) return;
+      await window.wolf.invoke('history:clear');
+      load();
+    };
+    load();
+  </script>
+</body>
+</html>

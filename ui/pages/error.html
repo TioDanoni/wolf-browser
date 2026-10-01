@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Página indisponível</title>
+  <link rel="stylesheet" href="pages.css">
+  <link rel="stylesheet" href="theme.css">
+  <style>
+    main { padding-top: 18vh; }
+    .logo { width: 88px; height: 88px; filter: grayscale(0.6) opacity(0.8); }
+    h1 { font-size: 26px; font-weight: 600; margin: 16px 0 8px; }
+    p { color: var(--text-dim); line-height: 1.5; }
+    code { color: var(--text-dim); font-size: 12px; }
+  </style>
+</head>
+<body>
+  <main>
+    <img class="logo" src="wolf.png" alt="">
+    <h1 id="title">Não foi possível abrir a página</h1>
+    <p id="text"></p>
+    <p><button id="retry" class="primary">Tentar de novo</button></p>
+    <code id="detail"></code>
+  </main>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const url = params.get('url') || '';
+    const code = Number(params.get('code'));
+    let host = url;
+    try { host = new URL(url).host; } catch {}
+
+    const MESSAGES = {
+      '-105': ['Site não encontrado', `Não foi possível encontrar o endereço de ${host}. Confira se está digitado certo.`],
+      '-106': ['Sem internet', 'Você parece estar desconectado. Verifique o Wi‑Fi ou o cabo de rede.'],
+      '-102': ['Conexão recusada', `${host} recusou a conexão. O serviço pode estar desligado ou a porta está errada.`],
+      '-109': ['Endereço inacessível', `Não foi possível chegar até ${host}. Se for da sua rede, confira se o aparelho está ligado ou se o Tailscale está conectado.`],
+      '-118': ['Tempo esgotado', `${host} demorou demais para responder.`],
+      '-7': ['Tempo esgotado', `${host} demorou demais para responder.`],
+      '-137': ['Site não encontrado', `Não foi possível resolver o nome ${host}.`],
+      '-21': ['A rede mudou', 'A conexão de rede mudou durante o carregamento. Tente de novo.'],
+    };
+    let [title, text] = MESSAGES[code] || [];
+    if (!title && code <= -200 && code > -300) {
+      title = 'Conexão não segura';
+      text = `O certificado de segurança de ${host} não é válido. Por segurança, a página não foi aberta.`;
+    }
+    document.getElementById('title').textContent = title || 'Não foi possível abrir a página';
+    document.getElementById('text').textContent = text || `Ocorreu um erro ao carregar ${host}.`;
+    document.getElementById('detail').textContent = `${params.get('description') || ''} (${code}) · ${url}`;
+    document.title = title || 'Página indisponível';
+    document.getElementById('retry').onclick = () => location.replace(url);
+  </script>
+</body>
+</html>

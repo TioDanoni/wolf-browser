@@ -1,0 +1,1002 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Painel</title>
+  <link rel="stylesheet" href="pages.css">
+  <link rel="stylesheet" href="theme.css">
+  <style>
+    html, body {
+      height: 100%;
+      min-height: 0;
+      overflow: hidden;
+      background: transparent;
+      user-select: none;
+    }
+    svg {
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* ---------- Fundo e cartão ---------- */
+
+    .backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgb(5 6 8 / 0.35);
+      animation: fade 0.18s ease both;
+    }
+    .card {
+      position: fixed;
+      left: 8px;
+      bottom: 8px;
+      display: flex;
+      flex-direction: column;
+      width: 380px;
+      height: min(580px, calc(100vh - 16px));
+      overflow: hidden;
+      border-radius: 18px;
+      background: linear-gradient(180deg, var(--surface), var(--bg));
+      box-shadow:
+        inset 0 0 0 1px rgb(255 255 255 / 0.07),
+        0 24px 60px rgb(0 0 0 / 0.6),
+        0 0 0 1px rgb(0 0 0 / 0.5);
+      transform-origin: bottom left;
+      animation: pop 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+    }
+    body.out .card { animation: popout 0.12s ease both; }
+    body.out .backdrop { animation: fadeout 0.12s ease both; }
+    @keyframes pop { from { opacity: 0; transform: translate(-6px, 10px) scale(0.96); } }
+    @keyframes popout { to { opacity: 0; transform: translate(-4px, 6px) scale(0.97); } }
+    @keyframes fade { from { opacity: 0; } }
+    @keyframes fadeout { to { opacity: 0; } }
+
+    /* ---------- Seletor de seções ---------- */
+
+    .seg {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 2px;
+      margin: 10px 10px 0;
+      padding: 3px;
+      border-radius: 12px;
+      background: var(--frame);
+      box-shadow: inset 0 0 0 1px var(--line);
+    }
+    .seg button {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 7px 0 6px;
+      border: 0;
+      border-radius: 9px;
+      background: none;
+      color: var(--text-dim);
+      font-size: 10.5px;
+      font-weight: 500;
+      transition: color 0.15s;
+    }
+    .seg button:hover { background: none; color: var(--text); }
+    .seg button.on { color: var(--accent); }
+    .seg svg { width: 17px; height: 17px; }
+    .seg .indicator {
+      position: absolute;
+      top: 3px;
+      bottom: 3px;
+      left: 3px;
+      width: calc((100% - 6px - 8px) / 5);
+      border-radius: 9px;
+      background: var(--surface-hover);
+      box-shadow: inset 0 0 0 1px var(--line), 0 2px 8px rgb(0 0 0 / 0.3);
+      transition: transform 0.22s cubic-bezier(0.3, 0.9, 0.3, 1);
+    }
+
+    /* ---------- Conteúdo ---------- */
+
+    .view { display: none; flex: 1; flex-direction: column; min-height: 0; }
+    .view.on { display: flex; animation: fade 0.18s ease both; }
+
+    .head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      padding: 16px 18px 10px;
+    }
+    .head h1 { margin: 0; font-size: 17px; font-weight: 650; }
+    .head .count { color: var(--text-dim); font-size: 12px; }
+
+    .search {
+      position: relative;
+      margin: 0 12px 8px;
+    }
+    .search svg {
+      position: absolute;
+      left: 11px;
+      top: 10px;
+      width: 15px;
+      height: 15px;
+      color: var(--text-dim);
+    }
+    .search input {
+      width: 100%;
+      height: 36px;
+      margin: 0;
+      padding-left: 34px;
+      border-radius: 10px;
+      font-size: 13px;
+    }
+
+    .scroll {
+      flex: 1;
+      min-height: 0;
+      padding: 0 6px 6px;
+      overflow-y: auto;
+    }
+    .group {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      padding: 8px 12px 6px;
+      background: var(--bg);
+      color: var(--text-dim);
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+    }
+
+    .item {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      min-height: 46px;
+      padding: 6px 8px 6px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+    .item:hover { background: rgb(255 255 255 / 0.045); }
+    .fav {
+      flex: none;
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 9px;
+      background: var(--frame);
+      box-shadow: inset 0 0 0 1px var(--line);
+      color: var(--text-dim);
+    }
+    .fav img { width: 16px; height: 16px; }
+    .fav svg { width: 15px; height: 15px; }
+    .fav.file { color: var(--accent); background: var(--accent-soft); box-shadow: none; }
+    .fav.file.done { color: #8fd694; background: rgb(143 214 148 / 0.12); }
+    .fav.file.bad { color: var(--danger); background: rgb(251 99 81 / 0.12); }
+    .info { flex: 1; min-width: 0; }
+    .info .t, .info .s {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    .info .t { font-size: 13px; }
+    .info .s { margin-top: 2px; color: var(--text-dim); font-size: 11.5px; }
+    .bar {
+      height: 4px;
+      margin-top: 6px;
+      overflow: hidden;
+      border-radius: 4px;
+      background: var(--frame);
+    }
+    .bar div {
+      height: 100%;
+      border-radius: 4px;
+      background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 70%, white));
+      transition: width 0.3s;
+    }
+    .bar.paused div { background: var(--text-dim); }
+
+    .act {
+      flex: none;
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      border: 0;
+      border-radius: 8px;
+      background: none;
+      color: var(--text-dim);
+      opacity: 0;
+      transition: opacity 0.12s, background 0.12s, color 0.12s;
+    }
+    .act svg { width: 14px; height: 14px; }
+    .item:hover .act, .act.keep { opacity: 1; }
+    .act:hover { background: rgb(255 255 255 / 0.08); color: var(--text); }
+    .act.x:hover { color: var(--danger); }
+
+    .empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding: 60px 30px;
+      color: var(--text-dim);
+      font-size: 13px;
+      line-height: 1.5;
+      text-align: center;
+    }
+    .empty svg {
+      width: 44px;
+      height: 44px;
+      padding: 12px;
+      border-radius: 16px;
+      background: var(--frame);
+      color: var(--text-dim);
+      box-sizing: content-box;
+    }
+
+    .foot {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 12px;
+      border-top: 1px solid var(--line);
+      background: rgb(0 0 0 / 0.15);
+    }
+    .foot .grow { flex: 1; }
+    .foot button {
+      padding: 7px 11px;
+      border: 0;
+      border-radius: 8px;
+      background: none;
+      color: var(--text-dim);
+      font-size: 12.5px;
+    }
+    .foot button:hover { background: rgb(255 255 255 / 0.06); color: var(--text); }
+    .foot button.danger:hover { color: var(--danger); background: rgb(251 99 81 / 0.1); }
+    .foot button.danger.confirm { color: var(--bg); background: var(--danger); }
+    .foot button.more { color: var(--accent); font-weight: 600; }
+    .foot button.more:hover { background: var(--accent-soft); color: var(--accent); }
+
+    /* ---------- Ajustes ---------- */
+
+    .settings { padding: 0 14px; overflow-y: auto; }
+    .block {
+      margin-bottom: 10px;
+      padding: 14px;
+      border-radius: 14px;
+      background: var(--frame);
+      box-shadow: inset 0 0 0 1px var(--line);
+    }
+    .block .label { font-size: 13px; font-weight: 600; }
+    .block .hint { margin-top: 3px; color: var(--text-dim); font-size: 11.5px; line-height: 1.4; }
+    .row2 { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .chip {
+      padding: 6px 11px;
+      border: 0;
+      border-radius: 20px;
+      background: var(--surface);
+      box-shadow: inset 0 0 0 1px var(--line);
+      color: var(--text-dim);
+      font-size: 12px;
+    }
+    .chip:hover { background: var(--surface-hover); color: var(--text); }
+    .chip.on { background: var(--accent-soft); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 50%, transparent); color: var(--accent); }
+
+    .switch {
+      position: relative;
+      flex: none;
+      width: 38px;
+      height: 22px;
+      padding: 0;
+      border: 0;
+      border-radius: 11px;
+      background: var(--surface-hover);
+      transition: background 0.2s;
+    }
+    .switch::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #e4e6ea;
+      box-shadow: 0 1px 3px rgb(0 0 0 / 0.4);
+      transition: transform 0.2s cubic-bezier(0.3, 0.9, 0.3, 1.2);
+    }
+    .switch.on { background: var(--accent); }
+    .switch.on::after { transform: translateX(16px); background: #fff; }
+    .switch:hover { background: var(--surface-hover); }
+    .switch.on:hover { background: color-mix(in srgb, var(--accent) 82%, white); }
+
+    .clear-btn {
+      margin-top: 12px;
+      width: 100%;
+      padding: 9px;
+      border: 0;
+      border-radius: 10px;
+      background: rgb(251 99 81 / 0.12);
+      color: var(--danger);
+      font-weight: 600;
+      font-size: 12.5px;
+    }
+    .clear-btn:hover { background: rgb(251 99 81 / 0.2); }
+    .clear-btn.done { background: rgb(143 214 148 / 0.12); color: #8fd694; }
+    /* Mini player */
+    .media-card {
+      margin: 0 6px 8px;
+      padding: 10px;
+      border-radius: 14px;
+      background: var(--frame);
+      box-shadow: inset 0 0 0 1px var(--line);
+    }
+    .media-card.playing { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent); }
+    .media-head { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+    .media-art {
+      flex: none;
+      display: grid;
+      place-items: center;
+      width: 52px;
+      height: 52px;
+      overflow: hidden;
+      border-radius: 10px;
+      background: var(--surface);
+      color: var(--text-dim);
+    }
+    .media-art img { width: 100%; height: 100%; object-fit: cover; }
+    .media-art img.fav-img { width: 24px; height: 24px; object-fit: contain; }
+    .media-art svg { width: 22px; height: 22px; }
+    .media-info { flex: 1; min-width: 0; }
+    .media-title { overflow: hidden; font-size: 13px; font-weight: 600; line-height: 1.4; white-space: nowrap; text-overflow: ellipsis; }
+    .media-sub { overflow: hidden; margin-top: 2px; color: var(--text-dim); font-size: 11.5px; line-height: 1.4; white-space: nowrap; text-overflow: ellipsis; }
+    .media-card.playing .media-title { color: var(--accent); }
+    .media-controls { display: flex; align-items: center; gap: 4px; margin-top: 10px; }
+    .media-controls .grow { flex: 1; }
+    .mc {
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      background: none;
+      color: var(--text-dim);
+    }
+    .mc svg { width: 17px; height: 17px; }
+    .mc:hover { background: var(--surface-hover); color: var(--text); }
+    .mc.main { width: 38px; height: 38px; background: var(--accent); color: var(--bg); }
+    .mc.main:hover { background: color-mix(in srgb, var(--accent) 85%, white); color: var(--bg); }
+    .mc.on { color: var(--accent); }
+    .mc.danger:hover { color: var(--danger); }
+
+    /* Ajustes rápidos */
+    .quick { padding: 0 14px; }
+    .q-title {
+      margin: 0 4px 8px;
+      color: var(--text-dim);
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+    }
+    .q-themes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 14px; }
+    .q-theme {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 8px;
+      border: 0;
+      border-radius: 10px;
+      background: var(--frame);
+      box-shadow: inset 0 0 0 1px var(--line);
+      color: var(--text-dim);
+      font-size: 11.5px;
+      text-align: left;
+    }
+    .q-theme:hover { background: var(--frame); color: var(--text); }
+    .q-theme.on { box-shadow: inset 0 0 0 1.5px var(--accent); color: var(--text); }
+    .q-theme span { flex: none; width: 18px; height: 18px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.15); }
+    .q-theme em { font-style: normal; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .q-list {
+      overflow: hidden;
+      border-radius: 14px;
+      background: var(--frame);
+      box-shadow: inset 0 0 0 1px var(--line);
+    }
+    .q-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      min-height: 46px;
+      padding: 6px 12px 6px 14px;
+      border-bottom: 1px solid var(--line);
+    }
+    .q-row:last-child { border-bottom: 0; }
+    .q-label { font-size: 13px; }
+    .q-row select { height: 30px; padding: 0 8px; border-radius: 8px; font-size: 12.5px; background: var(--surface); }
+    .q-seg { display: flex; gap: 2px; padding: 2px; border-radius: 9px; background: var(--surface); }
+    .q-seg button {
+      padding: 5px 9px;
+      border: 0;
+      border-radius: 7px;
+      background: none;
+      color: var(--text-dim);
+      font-size: 11.5px;
+    }
+    .q-seg button:hover { background: none; color: var(--text); }
+    .q-seg button.on { background: var(--surface-hover); color: var(--text); }
+    .quick .about { padding: 16px 4px 14px; }
+
+    .about {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 6px 4px 14px;
+      color: var(--text-dim);
+      font-size: 11.5px;
+    }
+    .about img { width: 34px; height: 34px; }
+    .about b { display: block; color: var(--text); font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="backdrop" id="backdrop"></div>
+
+  <div class="card" id="card">
+    <nav class="seg" id="seg">
+      <div class="indicator" id="indicator"></div>
+      <button data-view="history">
+        <svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4M12 8v4l3 2"/></svg>Histórico
+      </button>
+      <button data-view="downloads">
+        <svg viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Downloads
+      </button>
+      <button data-view="bookmarks">
+        <svg viewBox="0 0 24 24"><path d="M6.5 4h11a.5.5 0 0 1 .5.5V20l-6-4-6 4V4.5a.5.5 0 0 1 .5-.5z"/></svg>Favoritos
+      </button>
+      <button data-view="extensions">
+        <svg viewBox="0 0 24 24"><path d="M9.5 4.5a2 2 0 0 1 4 0V6H17a1 1 0 0 1 1 1v3.5h1.5a2 2 0 0 1 0 4H18V18a1 1 0 0 1-1 1h-3.5v-1.5a2 2 0 0 0-4 0V19H6a1 1 0 0 1-1-1v-3.5h1.5a2 2 0 0 0 0-4H5V7a1 1 0 0 1 1-1h3.5z"/></svg>Extensões
+      </button>
+      <button data-view="settings">
+        <svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>Ajustes
+      </button>
+    </nav>
+
+    <!-- Histórico -->
+    <section class="view" id="v-history">
+      <div class="head"><h1>Histórico</h1><span class="count" id="h-count"></span></div>
+      <label class="search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4-4"/></svg>
+        <input type="search" id="h-q" placeholder="Pesquisar no histórico">
+      </label>
+      <div class="scroll" id="h-list"></div>
+      <div class="foot">
+        <button class="danger" id="h-clear">Limpar histórico</button>
+        <span class="grow"></span>
+        <button class="more" data-page="history">Ver tudo →</button>
+      </div>
+    </section>
+
+    <!-- Downloads -->
+    <section class="view" id="v-downloads">
+      <div class="head"><h1>Downloads</h1><span class="count" id="d-count"></span></div>
+      <div class="scroll" id="d-list"></div>
+      <div class="foot">
+        <button id="d-folder">Abrir pasta</button>
+        <button id="d-clear">Limpar lista</button>
+        <span class="grow"></span>
+        <button class="more" data-page="downloads">Ver tudo →</button>
+      </div>
+    </section>
+
+    <!-- Favoritos -->
+    <section class="view" id="v-bookmarks">
+      <div class="head"><h1>Favoritos</h1><span class="count" id="b-count"></span></div>
+      <label class="search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4-4"/></svg>
+        <input type="search" id="b-q" placeholder="Pesquisar nos favoritos">
+      </label>
+      <div class="scroll" id="b-list"></div>
+      <div class="foot">
+        <span class="grow"></span>
+        <button class="more" data-page="bookmarks">Gerenciar →</button>
+      </div>
+    </section>
+
+    <!-- Extensões -->
+    <section class="view" id="v-extensions">
+      <div class="head"><h1>Extensões</h1><span class="count" id="e-count"></span></div>
+      <div class="scroll" id="e-list"></div>
+      <div class="foot">
+        <span class="grow"></span>
+        <button class="more" id="e-store">Chrome Web Store →</button>
+      </div>
+    </section>
+
+    <!-- Mídia (mini player) -->
+    <section class="view" id="v-media">
+      <div class="head"><h1>Tocando agora</h1><span class="count" id="m-count"></span></div>
+      <div class="scroll" id="m-list"></div>
+    </section>
+
+    <!-- Ajustes -->
+    <section class="view" id="v-settings">
+      <div class="head"><h1>Ajustes rápidos</h1></div>
+      <div class="scroll quick">
+        <div class="q-title">Tema</div>
+        <div class="q-themes" id="q-themes"></div>
+
+        <div class="q-list">
+          <div class="q-row">
+            <span class="q-label">Barra lateral</span>
+            <div class="q-seg" id="q-sidebar"></div>
+          </div>
+          <div class="q-row">
+            <span class="q-label">Pesquisa</span>
+            <select id="q-engine"></select>
+          </div>
+          <div class="q-row">
+            <span class="q-label">Abas dormem após</span>
+            <select id="q-sleep">
+              <option value="0">Nunca</option>
+              <option value="5">5 min</option>
+              <option value="15">15 min</option>
+              <option value="30">30 min</option>
+              <option value="60">1 hora</option>
+              <option value="120">2 horas</option>
+            </select>
+          </div>
+          <div class="q-row">
+            <span class="q-label">Bloquear anúncios</span>
+            <button class="switch" id="q-adblock"></button>
+          </div>
+          <div class="q-row">
+            <span class="q-label">Moldura arredondada</span>
+            <button class="switch" id="q-frame"></button>
+          </div>
+        </div>
+
+        <div class="about">
+          <img src="wolf-64.png" alt="">
+          <div><b id="s-version">Wolf Browser</b><span id="s-engine-info"></span></div>
+        </div>
+      </div>
+      <div class="foot">
+        <span class="grow"></span>
+        <button class="more" data-page="settings">Todas as configurações →</button>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const api = window.wolf;
+    const VIEWS = ['history', 'downloads', 'bookmarks', 'extensions', 'settings', 'media'];
+    let current = null;
+
+    const ICON_GLOBE = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.5 2.6 2.5 14.4 0 17M12 3.5c-2.5 2.6-2.5 14.4 0 17"/></svg>';
+    const ICON_X = '<svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg>';
+    const ICON_FILE = '<svg viewBox="0 0 24 24"><path d="M14 3.5H7a1.5 1.5 0 0 0-1.5 1.5v14A1.5 1.5 0 0 0 7 20.5h10a1.5 1.5 0 0 0 1.5-1.5V8z"/><path d="M14 3.5V8h4.5"/></svg>';
+    const ICON_FOLDER = '<svg viewBox="0 0 24 24"><path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/></svg>';
+    const ICON_PAUSE = '<svg viewBox="0 0 24 24"><path d="M9 6v12M15 6v12"/></svg>';
+    const ICON_PLAY = '<svg viewBox="0 0 24 24"><path d="M8 5.5v13l10-6.5z"/></svg>';
+    const ICON_STAR = '<svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.25 4.1 1 5.8L12 16.9l-5.25 2.7 1-5.8L3.5 9.7l5.9-.9z"/></svg>';
+    const ICON_CLOCK = '<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4M12 8v4l3 2"/></svg>';
+    const ICON_DOWN = '<svg viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>';
+
+    function el(tag, className, props = {}) {
+      return Object.assign(document.createElement(tag), { className }, props);
+    }
+    const host = (url) => { try { return new URL(url).host; } catch { return url; } };
+
+    function favBox(favicon) {
+      const box = el('span', 'fav');
+      if (favicon) {
+        const img = el('img', '', { src: favicon });
+        img.onerror = () => { box.innerHTML = ICON_GLOBE; };
+        box.append(img);
+      } else {
+        box.innerHTML = ICON_GLOBE;
+      }
+      return box;
+    }
+
+    function action(icon, title, onClick, extra = '') {
+      const b = el('button', `act ${extra}`, { innerHTML: icon, title });
+      b.onclick = (e) => {
+        e.stopPropagation();
+        onClick();
+      };
+      return b;
+    }
+
+    function empty(icon, text) {
+      const box = el('div', 'empty');
+      box.innerHTML = icon;
+      box.append(el('div', '', { textContent: text }));
+      return box;
+    }
+
+    // Clique abre na aba atual; Ctrl+clique ou botão do meio abre em nova aba.
+    function openOnClick(item, url) {
+      item.onmousedown = (e) => { if (e.button === 1) e.preventDefault(); };
+      item.onmouseup = (e) => {
+        if (e.button === 0) api.invoke('panel:open', url, e.ctrlKey);
+        else if (e.button === 1) api.invoke('panel:open', url, true);
+      };
+    }
+
+    // ---------- Troca de seção ----------
+
+    function show(name) {
+      if (!VIEWS.includes(name)) name = 'history';
+      current = name;
+      document.body.classList.remove('out');
+      // reinicia a animação de entrada
+      const card = $('card');
+      card.style.animation = 'none';
+      void card.offsetWidth;
+      card.style.animation = '';
+
+      // O mini player abre sozinho (sem as abas de seção em cima).
+      $('seg').hidden = name === 'media';
+      const index = VIEWS.indexOf(name);
+      $('indicator').style.transform = `translateX(calc(${index} * (100% + 2px)))`;
+      for (const b of $('seg').querySelectorAll('button')) b.classList.toggle('on', b.dataset.view === name);
+      for (const v of VIEWS) $(`v-${v}`).classList.toggle('on', v === name);
+      LOADERS[name]();
+      const search = $(`v-${name}`).querySelector('input[type=search]');
+      if (search) search.focus();
+    }
+
+    function close() {
+      if (document.body.classList.contains('out')) return;
+      document.body.classList.add('out');
+      setTimeout(() => api.invoke('panel:close'), 110);
+    }
+
+    for (const b of $('seg').querySelectorAll('button')) b.onclick = () => show(b.dataset.view);
+    for (const b of document.querySelectorAll('[data-page]')) b.onclick = () => api.invoke('panel:page', b.dataset.page);
+    $('backdrop').onclick = close;
+    api.on('panel-show', show);
+
+    // ---------- Histórico ----------
+
+    function dayLabel(time) {
+      const d = new Date(time);
+      if (d.toDateString() === new Date().toDateString()) return 'Hoje';
+      if (d.toDateString() === new Date(Date.now() - 86400000).toDateString()) return 'Ontem';
+      return d.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'short' });
+    }
+
+    async function loadHistory() {
+      const items = (await api.invoke('history:list', $('h-q').value)).slice(0, 300);
+      const list = $('h-list');
+      list.replaceChildren();
+      $('h-count').textContent = items.length ? `${items.length}${items.length === 300 ? '+' : ''} ${items.length === 1 ? 'página' : 'páginas'}` : '';
+      if (!items.length) {
+        list.append(empty(ICON_CLOCK, $('h-q').value ? 'Nada encontrado.' : 'Seu histórico aparece aqui.'));
+        return;
+      }
+      let group = null;
+      for (const h of items) {
+        const label = dayLabel(h.time);
+        if (label !== group) {
+          group = label;
+          list.append(el('div', 'group', { textContent: label }));
+        }
+        const item = el('div', 'item', { title: h.url });
+        const info = el('div', 'info');
+        const time = new Date(h.time).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        info.append(el('div', 't', { textContent: h.title || h.url }), el('div', 's', { textContent: `${host(h.url)} · ${time}` }));
+        item.append(favBox(h.favicon), info, action(ICON_X, 'Remover do histórico', async () => {
+          await api.invoke('history:remove', h.time);
+          item.remove();
+        }, 'x'));
+        openOnClick(item, h.url);
+        list.append(item);
+      }
+    }
+    let hTimer;
+    $('h-q').oninput = () => { clearTimeout(hTimer); hTimer = setTimeout(loadHistory, 120); };
+
+    // Pede confirmação com um segundo clique.
+    function confirmButton(button, text, run) {
+      let armed = false;
+      const original = button.textContent;
+      button.onclick = async () => {
+        if (!armed) {
+          armed = true;
+          button.textContent = text;
+          button.classList.add('confirm');
+          setTimeout(() => { armed = false; button.textContent = original; button.classList.remove('confirm'); }, 3000);
+          return;
+        }
+        armed = false;
+        button.textContent = original;
+        button.classList.remove('confirm');
+        await run();
+      };
+    }
+    confirmButton($('h-clear'), 'Clique de novo para apagar', async () => {
+      await api.invoke('history:clear');
+      loadHistory();
+    });
+
+    // ---------- Downloads ----------
+
+    function size(bytes) {
+      if (!bytes) return '0 B';
+      const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+      const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+      return `${(bytes / 1024 ** i).toFixed(i ? 1 : 0).replace('.', ',')} ${units[i]}`;
+    }
+
+    function renderDownloads(items) {
+      if (current !== 'downloads') return;
+      const list = $('d-list');
+      list.replaceChildren();
+      const running = items.filter((d) => d.state === 'progressing').length;
+      $('d-count').textContent = running ? `${running} em andamento` : items.length ? `${items.length} ${items.length === 1 ? 'arquivo' : 'arquivos'}` : '';
+      if (!items.length) {
+        list.append(empty(ICON_DOWN, 'Nenhum download ainda.'));
+        return;
+      }
+      for (const d of items) {
+        const item = el('div', 'item', { title: d.path });
+        const icon = el('span', 'fav file', { innerHTML: ICON_FILE });
+        if (d.state === 'completed') icon.classList.add('done');
+        if (d.state === 'cancelled' || d.state === 'interrupted') icon.classList.add('bad');
+
+        const info = el('div', 'info');
+        let status;
+        if (d.state === 'completed') status = `${size(d.total || d.received)} · Concluído`;
+        else if (d.state === 'cancelled') status = 'Cancelado';
+        else if (d.state === 'interrupted') status = 'Falhou';
+        else {
+          const pct = d.total ? ` · ${Math.round((d.received / d.total) * 100)}%` : '';
+          status = `${size(d.received)}${d.total ? ` de ${size(d.total)}` : ''}${pct}${d.paused ? ' · Pausado' : ''}`;
+        }
+        info.append(el('div', 't', { textContent: d.filename }), el('div', 's', { textContent: status }));
+        if (d.state === 'progressing') {
+          const bar = el('div', `bar${d.paused ? ' paused' : ''}`);
+          const fill = el('div');
+          fill.style.width = d.total ? `${(d.received / d.total) * 100}%` : '35%';
+          bar.append(fill);
+          info.append(bar);
+        }
+        item.append(icon, info);
+
+        if (d.state === 'progressing') {
+          item.append(
+            action(d.paused ? ICON_PLAY : ICON_PAUSE, d.paused ? 'Continuar' : 'Pausar', () => api.invoke('downloads:pause', d.id), 'keep'),
+            action(ICON_X, 'Cancelar', () => api.invoke('downloads:cancel', d.id), 'keep x'),
+          );
+        } else {
+          if (d.state === 'completed') {
+            item.append(action(ICON_FOLDER, 'Mostrar na pasta', () => api.invoke('downloads:show', d.id)));
+            item.onclick = () => api.invoke('downloads:open', d.id);
+          }
+          item.append(action(ICON_X, 'Remover da lista', async () => {
+            await api.invoke('downloads:remove', d.id);
+            loadDownloads();
+          }, 'x'));
+        }
+        list.append(item);
+      }
+    }
+    const loadDownloads = () => api.invoke('downloads:list').then(renderDownloads);
+    api.on('downloads', renderDownloads);
+    $('d-folder').onclick = () => api.invoke('downloads:folder');
+    $('d-clear').onclick = () => api.invoke('downloads:clear').then(loadDownloads);
+
+    // ---------- Favoritos ----------
+
+    let bookmarkItems = [];
+    function renderBookmarks() {
+      const q = $('b-q').value.trim().toLowerCase();
+      const shown = bookmarkItems.filter((b) => !q || b.url.toLowerCase().includes(q) || b.title.toLowerCase().includes(q));
+      const list = $('b-list');
+      list.replaceChildren();
+      $('b-count').textContent = bookmarkItems.length ? `${bookmarkItems.length} ${bookmarkItems.length === 1 ? 'salvo' : 'salvos'}` : '';
+      if (!shown.length) {
+        list.append(empty(ICON_STAR, bookmarkItems.length ? 'Nenhum favorito encontrado.' : 'Clique na ★ da barra de endereço ou use Ctrl+D para salvar um site.'));
+        return;
+      }
+      for (const b of shown) {
+        const item = el('div', 'item', { title: b.url });
+        const info = el('div', 'info');
+        info.append(el('div', 't', { textContent: b.title }), el('div', 's', { textContent: host(b.url) }));
+        item.append(favBox(b.favicon), info, action(ICON_X, 'Remover dos favoritos', async () => {
+          await api.invoke('bookmarks:remove', b.url);
+          loadBookmarks();
+        }, 'x'));
+        openOnClick(item, b.url);
+        list.append(item);
+      }
+    }
+    async function loadBookmarks() {
+      bookmarkItems = (await api.invoke('bookmarks:list')).slice().reverse();
+      renderBookmarks();
+    }
+    $('b-q').oninput = renderBookmarks;
+
+    // ---------- Ajustes ----------
+
+    async function loadSettings() {
+      const s = await api.invoke('settings:get');
+      const save = async (key, value) => {
+        await api.invoke('settings:set', key, value);
+        loadSettings();
+      };
+
+      // Temas: bolinhas com as cores de cada um.
+      const auto = { ...(s.systemTheme || s.themes.wolf), name: 'Automático' };
+      $('q-themes').replaceChildren(...[['system', auto], ...Object.entries(s.themes)].map(([id, t]) => {
+        const b = el('button', `q-theme${id === s.theme ? ' on' : ''}`, { title: t.name });
+        b.innerHTML = `<span style="background: linear-gradient(135deg, ${t.frame} 0 50%, ${t.accent} 50% 100%)"></span><em>${t.name}</em>`;
+        b.onclick = async () => {
+          await api.invoke('settings:set', 'theme', id);
+          await save('accent', null);
+        };
+        return b;
+      }));
+
+      $('q-sidebar').replaceChildren(...[['expanded', 'Aberta'], ['collapsed', 'Recolhida'], ['auto', 'Auto']].map(([value, label]) => {
+        const b = el('button', value === s.sidebarMode ? 'on' : '', { textContent: label });
+        b.onclick = () => save('sidebarMode', value);
+        return b;
+      }));
+
+      const engine = $('q-engine');
+      engine.replaceChildren(...Object.entries(s.engines).map(([value, name]) => el('option', '', { value, textContent: name })));
+      engine.value = s.searchEngine;
+      engine.onchange = () => save('searchEngine', engine.value);
+
+      const sleep = $('q-sleep');
+      sleep.value = String(s.sleepAfter);
+      sleep.onchange = () => save('sleepAfter', Number(sleep.value));
+
+      for (const [id, key] of [['q-adblock', 'adblock'], ['q-frame', 'pageFrame']]) {
+        const sw = $(id);
+        sw.classList.toggle('on', Boolean(s[key]));
+        sw.onclick = () => save(key, !sw.classList.contains('on'));
+      }
+
+      $('s-version').textContent = `Wolf Browser ${s.versions.app}`;
+      $('s-engine-info').textContent = `Chromium ${s.versions.chrome.split('.')[0]} · Electron ${s.versions.electron.split('.')[0]}`;
+    }
+
+    // ---------- Extensões ----------
+
+    const ICON_PUZZLE = '<svg viewBox="0 0 24 24"><path d="M9.5 4.5a2 2 0 0 1 4 0V6H17a1 1 0 0 1 1 1v3.5h1.5a2 2 0 0 1 0 4H18V18a1 1 0 0 1-1 1h-3.5v-1.5a2 2 0 0 0-4 0V19H6a1 1 0 0 1-1-1v-3.5h1.5a2 2 0 0 0 0-4H5V7a1 1 0 0 1 1-1h3.5z"/></svg>';
+    const ICON_GEAR = '<svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>';
+    const ICON_TRASH = '<svg viewBox="0 0 24 24"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12"/></svg>';
+
+    async function loadExtensions() {
+      const items = await api.invoke('extensions:list');
+      const list = $('e-list');
+      list.replaceChildren();
+      $('e-count').textContent = items.length ? `${items.length} ${items.length === 1 ? 'instalada' : 'instaladas'}` : '';
+      if (!items.length) {
+        const box = empty(ICON_PUZZLE, 'Nenhuma extensão ainda. Abra a Chrome Web Store e clique em "Usar no Chrome".');
+        const go = el('button', 'chip on', { textContent: 'Abrir Chrome Web Store' });
+        go.onclick = () => api.invoke('extensions:store');
+        box.append(go);
+        list.append(box);
+        return;
+      }
+      for (const ext of items) {
+        const item = el('div', 'item', { title: ext.description || ext.name });
+        const icon = el('span', 'fav');
+        const img = el('img', '', { src: `crx://extension-icon/${ext.id}/32/2` });
+        img.onerror = () => { icon.innerHTML = ICON_PUZZLE; };
+        icon.append(img);
+        const info = el('div', 'info');
+        info.append(el('div', 't', { textContent: ext.name }), el('div', 's', { textContent: ext.description || `Versão ${ext.version}` }));
+        item.append(icon, info);
+        if (ext.options) item.append(action(ICON_GEAR, 'Opções da extensão', () => api.invoke('extensions:options', ext.id), 'keep'));
+        const remove = action(ICON_TRASH, 'Remover extensão', () => {}, 'x keep');
+        let armed = false;
+        remove.onclick = async (e) => {
+          e.stopPropagation();
+          if (!armed) {
+            armed = true;
+            remove.style.color = 'var(--danger)';
+            remove.title = 'Clique de novo para remover';
+            setTimeout(() => { armed = false; remove.style.color = ''; remove.title = 'Remover extensão'; }, 3000);
+            return;
+          }
+          await api.invoke('extensions:remove', ext.id);
+          loadExtensions();
+        };
+        item.append(remove);
+        list.append(item);
+      }
+    }
+    $('e-store').onclick = () => api.invoke('extensions:store');
+    api.on('extensions-changed', () => { if (current === 'extensions') loadExtensions(); });
+
+    // ---------- Mídia ----------
+
+    const ICON_PAUSE2 = '<svg viewBox="0 0 24 24"><path d="M9 6v12M15 6v12"/></svg>';
+    const ICON_BACK10 = '<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4"/><path d="M10 10v5M13 10h2v5h-2z"/></svg>';
+    const ICON_FWD10 = '<svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v4h-4"/><path d="M8.5 10v5M11.5 10h2v5h-2z"/></svg>';
+    const ICON_VOL = '<svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9zM16 9a4 4 0 0 1 0 6"/></svg>';
+    const ICON_MUTED = '<svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9zM17 10l4 4M21 10l-4 4"/></svg>';
+    const ICON_PIP = '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><rect x="12" y="11" width="7" height="6" rx="1"/></svg>';
+    const ICON_GOTO = '<svg viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-8 8M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/></svg>';
+    const ICON_NOTE = '<svg viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg>';
+
+    function renderMedia(items) {
+      if (current !== 'media') return;
+      const list = $('m-list');
+      list.replaceChildren();
+      const playing = items.filter((m) => m.playing).length;
+      $('m-count').textContent = items.length ? `${playing} tocando · ${items.length - playing} pausado(s)` : '';
+      if (!items.length) {
+        list.append(empty(ICON_NOTE, 'Nada tocando agora. Vídeos e músicas de qualquer aba aparecem aqui.'));
+        return;
+      }
+      for (const m of items) {
+        const card = el('div', `media-card${m.playing ? ' playing' : ''}`);
+        const art = el('div', 'media-art');
+        const fallback = () => {
+          art.replaceChildren();
+          if (m.favicon) art.append(el('img', 'fav-img', { src: m.favicon }));
+          else art.innerHTML = ICON_NOTE;
+        };
+        if (m.artwork) {
+          const img = el('img', '', { src: m.artwork });
+          img.onerror = fallback;
+          art.append(img);
+        } else fallback();
+        const info = el('div', 'media-info');
+        info.append(
+          el('div', 'media-title', { textContent: m.title || m.site }),
+          el('div', 'media-sub', { textContent: [m.artist, m.site, m.space].filter(Boolean).join(' · ') }),
+        );
+        const head = el('div', 'media-head');
+        head.append(art, info);
+        head.onclick = () => api.invoke('media:command', m.tabId, 'focus');
+        head.title = 'Ir para a aba';
+
+        const controls = el('div', 'media-controls');
+        const btn = (icon, title, command, cls = '') => {
+          const b = el('button', `mc ${cls}`, { innerHTML: icon, title });
+          b.onclick = () => api.invoke('media:command', m.tabId, command);
+          return b;
+        };
+        controls.append(
+          btn(ICON_BACK10, 'Voltar 10 s', 'back'),
+          btn(m.playing ? ICON_PAUSE2 : ICON_PLAY, m.playing ? 'Pausar' : 'Tocar', 'toggle', 'main'),
+          btn(ICON_FWD10, 'Avançar 10 s', 'forward'),
+          btn(m.muted ? ICON_MUTED : ICON_VOL, m.muted ? 'Ativar som' : 'Silenciar', 'mute', m.muted ? 'on' : ''),
+        );
+        if (m.hasVideo) controls.append(btn(ICON_PIP, m.pip ? 'Sair do picture-in-picture' : 'Picture-in-picture (janela flutuante)', 'pip', m.pip ? 'on' : ''));
+        const spacer = el('span', 'grow');
+        controls.append(spacer, btn(ICON_GOTO, 'Ir para a aba', 'focus'), btn(ICON_X, 'Fechar a aba', 'close', 'danger'));
+        card.append(head, controls);
+        list.append(card);
+      }
+    }
+    const loadMedia = () => api.invoke('media:list').then(renderMedia);
+    api.on('media', renderMedia);
+
+    const LOADERS = { media: loadMedia, history: loadHistory, downloads: loadDownloads, bookmarks: loadBookmarks, extensions: loadExtensions, settings: loadSettings };
+    show(location.hash.slice(1));
+  </script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+/* Barra de endereço no topo (gota). As cores vêm do tema (wolf://app/theme.css). */
+:root {
+  --frame: #0d0f13;
+  --raised: #16181d;
+  --raised-2: #1d2027;
+  --text: #e4e6ea;
+  --text-dim: #8a909c;
+  --accent: #f5a432;
+  --accent-soft: color-mix(in srgb, var(--accent) 14%, transparent);
+  --text-faint: color-mix(in srgb, var(--text-dim) 62%, var(--frame));
+  --line: rgb(255 255 255 / 0.07);
+  --danger: #fb6351;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  color: var(--text);
+  font: 13.5px/1.2 "Inter", "Noto Sans", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Escondida (só a faixa fininha que percebe o mouse): nada aparece. */
+body.hidden #drop, body.hidden #suggestions { display: none; }
+
+svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+#drop {
+  position: absolute;
+  top: 0;
+  left: 14px;
+  right: 14px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px 0 8px;
+  background: var(--raised);
+  box-shadow: inset 0 0 0 1px var(--line), 0 10px 28px rgb(0 0 0 / 0.45);
+  transition: box-shadow 0.15s;
+}
+/* Sempre visível: pílula inteira no espaço acima da página. */
+body.mode-always #drop { top: 2px; border-radius: 21px; }
+/* Com o mouse: "gota" pendurada no topo da página (cantos de baixo arredondados). */
+body.mode-hover #drop {
+  border-radius: 0 0 22px 22px;
+  animation: drip 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+@keyframes drip { from { transform: translateY(-46px); } }
+#drop:focus-within { box-shadow: inset 0 0 0 1px var(--accent), 0 0 0 4px var(--accent-soft), 0 10px 28px rgb(0 0 0 / 0.45); }
+
+#site-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--raised-2);
+  color: var(--text-dim);
+}
+#site-icon svg { width: 14px; height: 14px; }
+#site-icon img { width: 16px; height: 16px; }
+#site-icon.secure { color: #8fd694; }
+#site-icon.insecure { color: var(--danger); }
+
+#address {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  outline: none;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  text-align: center;
+  text-overflow: ellipsis;
+}
+#address:focus { text-align: left; }
+#address::placeholder { color: var(--text-faint); }
+#address::selection { background: color-mix(in srgb, var(--accent) 35%, transparent); }
+
+#shield, #star {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 28px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: 14px;
+  background: none;
+  color: var(--text-faint);
+  cursor: pointer;
+}
+#shield:hover, #star:hover { background: rgb(255 255 255 / 0.06); color: var(--text); }
+#shield { color: #8fd694; }
+#shield.off { color: var(--text-faint); }
+#shield svg, #star svg { width: 15px; height: 15px; }
+#blocked-count { font-size: 10.5px; font-weight: 700; }
+#blocked-count:empty { display: none; }
+#star.on { color: var(--accent); }
+#star.on svg { fill: var(--accent); }
+
+#suggestions {
+  position: absolute;
+  top: 48px;
+  left: 14px;
+  right: 14px;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  border-radius: 16px;
+  background: var(--raised-2);
+  box-shadow: 0 0 0 1px var(--line), 0 14px 34px rgb(0 0 0 / 0.55);
+}
+#suggestions li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+#suggestions li:hover { background: rgb(255 255 255 / 0.05); }
+#suggestions li.selected { background: var(--accent-soft); }
+#suggestions .s-title, #suggestions .s-url {
+  overflow: hidden;
+  line-height: 1.4;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+#suggestions .s-url { color: var(--text-dim); font-size: 11.5px; }
+#suggestions li.selected .s-url { color: var(--accent); }
+#suggestions .is-bookmark .s-title::before { content: '★ '; color: var(--accent); }

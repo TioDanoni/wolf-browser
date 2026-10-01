@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>IA</title>
+  <link rel="stylesheet" href="pages.css">
+  <link rel="stylesheet" href="theme.css">
+  <style>
+    html, body {
+      height: 100%;
+      min-height: 0;
+      overflow: hidden;
+      background: transparent;
+      user-select: none;
+    }
+    svg {
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      height: 44px;
+      padding: 0 4px 6px;
+    }
+    .providers {
+      flex: 1;
+      display: flex;
+      gap: 4px;
+      min-width: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .provider {
+      flex: none;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      height: 32px;
+      padding: 0 10px 0 6px;
+      border: 0;
+      border-radius: 10px;
+      background: var(--frame);
+      box-shadow: inset 0 0 0 1px var(--line);
+      color: var(--text-dim);
+      font-size: 12.5px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .provider:hover { background: var(--surface); color: var(--text); }
+    .provider.on { background: var(--accent-soft); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 50%, transparent); color: var(--accent); }
+    .provider img { width: 18px; height: 18px; border-radius: 5px; }
+    .provider .letter {
+      display: grid;
+      place-items: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 5px;
+      background: var(--surface-hover);
+      font-size: 10px;
+      font-weight: 700;
+    }
+    /* Estreito: só os ícones (o nome aparece só na IA atual). */
+    body.narrow .provider:not(.on) .name { display: none; }
+    body.narrow .provider:not(.on) { padding: 0 7px; }
+    /* Bem estreito: todas só com ícone e sem os botões de largura (ficam nas configurações). */
+    body.tiny .provider .name, body.tiny #narrower, body.tiny #wider { display: none; }
+    body.tiny .provider { padding: 0 7px; }
+    .tools { display: flex; gap: 2px; }
+    .tool {
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      padding: 0;
+      border: 0;
+      border-radius: 8px;
+      background: none;
+      color: var(--text-dim);
+    }
+    .tool:hover { background: var(--surface); color: var(--text); }
+    .tool svg { width: 16px; height: 16px; }
+    .tool.loading svg { animation: spin 0.9s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="providers" id="providers"></div>
+    <div class="tools">
+      <button class="tool" id="narrower" title="Diminuir o painel">
+        <svg viewBox="0 0 24 24"><path d="M14 6l-6 6 6 6"/></svg>
+      </button>
+      <button class="tool" id="wider" title="Aumentar o painel">
+        <svg viewBox="0 0 24 24"><path d="M10 6l6 6-6 6"/></svg>
+      </button>
+      <button class="tool" id="reload" title="Recarregar">
+        <svg viewBox="0 0 24 24"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3M19.5 4v4h-4"/></svg>
+      </button>
+      <button class="tool" id="tab" title="Abrir numa aba">
+        <svg viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-8 8M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/></svg>
+      </button>
+      <button class="tool" id="settings" title="Configurar IAs">
+        <svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>
+      </button>
+      <button class="tool" id="close" title="Fechar o painel (Ctrl+Shift+A)">
+        <svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg>
+      </button>
+    </div>
+  </header>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const api = window.wolf;
+    const icon = (url) => {
+      try {
+        return `${new URL(url).origin}/favicon.ico`; // ícone do próprio site (sem serviço de terceiros)
+      } catch {
+        return '';
+      }
+    };
+
+    api.on('ai', (s) => {
+      fit();
+      $('reload').classList.toggle('loading', s.loading);
+      $('providers').replaceChildren(...s.providers.map((p) => {
+        const b = document.createElement('button');
+        b.className = `provider${p.id === s.current ? ' on' : ''}`;
+        b.title = p.name;
+        const img = document.createElement('img');
+        img.src = icon(p.url);
+        img.onerror = () => img.replaceWith(Object.assign(document.createElement('span'), { className: 'letter', textContent: p.name[0] }));
+        const name = document.createElement('span');
+        name.className = 'name';
+        name.textContent = p.name;
+        b.append(img, name);
+        b.onclick = () => (p.id === s.current ? api.invoke('ai:home') : api.invoke('ai:select', p.id));
+        return b;
+      }));
+    });
+    const fit = () => {
+      document.body.classList.toggle('narrow', innerWidth < 470);
+      document.body.classList.toggle('tiny', innerWidth < 380);
+    };
+    window.addEventListener('resize', fit);
+    $('narrower').onclick = () => api.invoke('ai:width', -1);
+    $('wider').onclick = () => api.invoke('ai:width', 1);
+    $('reload').onclick = () => api.invoke('ai:reload');
+    $('tab').onclick = () => api.invoke('ai:open-tab');
+    $('settings').onclick = () => api.invoke('ai:settings');
+    $('close').onclick = () => api.invoke('ai:close');
+  </script>
+</body>
+</html>

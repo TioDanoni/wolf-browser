@@ -1,0 +1,41 @@
+# Wolf Browser: pacote pacman. Montado pelo GitHub (.github/workflows/pacote.yml)
+# a cada versão nova; para montar aqui: cd packaging && makepkg -f
+pkgname=wolf-browser
+pkgver=$(sed -n 's/.*"version": "\(.*\)".*/\1/p' "${startdir:-.}/../package.json")
+pkgrel=1
+pkgdesc="Navegador do Wolf OS: Chromium (Electron) com abas verticais, espaços e bloqueio de anúncios"
+arch=('x86_64')
+url="https://github.com/TioDanoni/wolf-browser"
+license=('GPL-3.0-or-later')
+depends=('gtk3' 'nss' 'alsa-lib' 'libxss' 'libxtst' 'libnotify' 'libsecret' 'xdg-utils')
+makedepends=('nodejs' 'npm')
+provides=('www-browser')
+options=('!strip' '!debug')
+
+build() {
+    rm -rf "$srcdir/app" "$srcdir/electron"
+    mkdir -p "$srcdir/app" "$srcdir/electron"
+    cd "$startdir/.."
+    cp -r ./*.js package.json package-lock.json LICENSE ui "$srcdir/app/"
+    # Electron (o Chromium) vem do npm, na versão exata do package-lock.json
+    cp package.json package-lock.json "$srcdir/electron/"
+    cd "$srcdir/electron" && npm ci --no-audit --no-fund
+    node node_modules/electron/install.js # baixa o Electron (as versões novas não baixam sozinhas)
+    # o app leva só as bibliotecas que usa ao rodar
+    cd "$srcdir/app" && npm ci --omit=dev --no-audit --no-fund
+}
+
+package() {
+    install -d "$pkgdir/usr/lib/wolf-browser"
+    cp -a "$srcdir/electron/node_modules/electron/dist/." "$pkgdir/usr/lib/wolf-browser/"
+    rm -f "$pkgdir/usr/lib/wolf-browser/resources/default_app.asar"
+    cp -a "$srcdir/app" "$pkgdir/usr/lib/wolf-browser/resources/app"
+    chmod -R u=rwX,go=rX "$pkgdir/usr/lib/wolf-browser"
+    chmod 4755 "$pkgdir/usr/lib/wolf-browser/chrome-sandbox"
+
+    install -Dm755 "$startdir/wolf-browser.sh" "$pkgdir/usr/bin/wolf-browser"
+    install -Dm644 "$startdir/wolf-browser.desktop" "$pkgdir/usr/share/applications/wolf-browser.desktop"
+    install -Dm644 "$startdir/../ui/assets/wolf-512.png" "$pkgdir/usr/share/icons/hicolor/512x512/apps/wolf-browser.png"
+    install -Dm644 "$startdir/../ui/assets/wolf-128.png" "$pkgdir/usr/share/icons/hicolor/128x128/apps/wolf-browser.png"
+    install -Dm644 "$startdir/../LICENSE" "$pkgdir/usr/share/licenses/wolf-browser/LICENSE"
+}

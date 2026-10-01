@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Zoom</title>
+  <link rel="stylesheet" href="pages.css">
+  <link rel="stylesheet" href="theme.css">
+  <style>
+    html, body {
+      height: 100%;
+      min-height: 0;
+      overflow: hidden;
+      background: transparent;
+      user-select: none;
+    }
+    body { display: grid; place-items: center; }
+    .pill {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      height: 42px;
+      padding: 0 5px;
+      border-radius: 21px;
+      background: color-mix(in srgb, var(--bg) 94%, transparent);
+      box-shadow: inset 0 0 0 1px var(--line), 0 10px 28px rgb(0 0 0 / 0.5);
+      animation: drop 0.18s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+    }
+    @keyframes drop { from { opacity: 0; transform: translateY(-8px) scale(0.96); } }
+    .pill.bump { animation: bump 0.18s ease; }
+    @keyframes bump { 50% { transform: scale(1.05); } }
+    button {
+      display: grid;
+      place-items: center;
+      height: 32px;
+      min-width: 32px;
+      padding: 0 10px;
+      border: 0;
+      border-radius: 16px;
+      background: none;
+      color: var(--text-dim);
+      font: 600 16px system-ui, sans-serif;
+    }
+    button:hover { background: var(--surface-hover); color: var(--text); }
+    #reset { font-size: 12px; font-weight: 600; }
+    #value {
+      min-width: 64px;
+      color: var(--text);
+      font: 700 15px system-ui, sans-serif;
+      text-align: center;
+    }
+    #value.changed { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="pill" id="pill">
+    <button id="out" title="Diminuir (Ctrl+-)">−</button>
+    <span id="value">100%</span>
+    <button id="in" title="Aumentar (Ctrl+=)">+</button>
+    <button id="reset" title="Zoom normal (Ctrl+0)">Redefinir</button>
+  </div>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    window.wolf.on('zoom', (percent) => {
+      $('value').textContent = `${percent}%`;
+      $('value').classList.toggle('changed', percent !== 100);
+      $('reset').hidden = percent === 100;
+      const pill = $('pill');
+      pill.classList.remove('bump');
+      void pill.offsetWidth;
+      pill.classList.add('bump');
+    });
+    $('out').onclick = () => window.wolf.invoke('toast:zoom', -1);
+    $('in').onclick = () => window.wolf.invoke('toast:zoom', 1);
+    $('reset').onclick = () => window.wolf.invoke('toast:zoom', 0);
+    $('pill').onmouseenter = () => window.wolf.invoke('toast:hover', true);
+    $('pill').onmouseleave = () => window.wolf.invoke('toast:hover', false);
+  </script>
+</body>
+</html>

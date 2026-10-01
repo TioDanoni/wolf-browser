@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Downloads</title>
+  <link rel="stylesheet" href="pages.css">
+  <link rel="stylesheet" href="theme.css">
+</head>
+<body>
+  <main>
+    <header class="page">
+      <h1>Downloads</h1>
+      <button id="clear">Limpar lista</button>
+    </header>
+    <div id="list" class="list"></div>
+  </main>
+
+  <script>
+    const listEl = document.getElementById('list');
+
+    function size(bytes) {
+      if (!bytes) return '0 B';
+      const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+      const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+      return `${(bytes / 1024 ** i).toFixed(i ? 1 : 0).replace('.', ',')} ${units[i]}`;
+    }
+
+    function status(d) {
+      if (d.state === 'completed') return `${size(d.total || d.received)} · Concluído`;
+      if (d.state === 'cancelled') return 'Cancelado';
+      if (d.state === 'interrupted') return 'Falhou';
+      const done = d.total ? `${size(d.received)} de ${size(d.total)}` : size(d.received);
+      return d.paused ? `${done} · Pausado` : done;
+    }
+
+    function button(label, action, id, cls = 'link') {
+      const b = document.createElement('button');
+      b.className = cls;
+      b.textContent = label;
+      b.onclick = () => window.wolf.invoke(`downloads:${action}`, id).then(refresh);
+      return b;
+    }
+
+    function render(items) {
+      listEl.replaceChildren();
+      if (!items.length) {
+        listEl.innerHTML = '<div class="empty">Nenhum download ainda.</div>';
+        return;
+      }
+      for (const d of items) {
+        const row = document.createElement('div');
+        row.className = 'row';
+        const main = document.createElement('div');
+        main.className = 'main';
+        const name = document.createElement('span');
+        name.className = 'name';
+        name.textContent = d.filename;
+        const sub = document.createElement('div');
+        sub.className = 'sub';
+        sub.textContent = `${status(d)} · ${d.url}`;
+        main.append(name, sub);
+        if (d.state === 'progressing') {
+          const bar = document.createElement('div');
+          bar.className = 'progress';
+          const fill = document.createElement('div');
+          fill.style.width = d.total ? `${(d.received / d.total) * 100}%` : '30%';
+          bar.append(fill);
+          main.append(bar);
+        }
+        row.append(main);
+        if (d.state === 'completed') {
+          row.append(button('Abrir', 'open', d.id), button('Mostrar na pasta', 'show', d.id));
+        } else if (d.state === 'progressing') {
+          row.append(button(d.paused ? 'Continuar' : 'Pausar', 'pause', d.id), button('Cancelar', 'cancel', d.id));
+        }
+        row.append(button('×', 'remove', d.id));
+        listEl.append(row);
+      }
+    }
+
+    const refresh = () => window.wolf.invoke('downloads:list').then(render);
+    window.wolf.on('downloads', render);
+    document.getElementById('clear').onclick = () => window.wolf.invoke('downloads:clear').then(refresh);
+    refresh();
+  </script>
+</body>
+</html>

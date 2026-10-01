@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Favoritos</title>
+  <link rel="stylesheet" href="pages.css">
+  <link rel="stylesheet" href="theme.css">
+</head>
+<body>
+  <main>
+    <header class="page">
+      <h1>Favoritos</h1>
+    </header>
+    <input id="q" class="search" type="search" placeholder="Pesquisar nos favoritos" autofocus>
+    <div id="list" class="list"></div>
+  </main>
+
+  <script>
+    const listEl = document.getElementById('list');
+    const q = document.getElementById('q');
+    let items = [];
+
+    function render() {
+      const query = q.value.trim().toLowerCase();
+      const shown = items.filter((b) => !query || b.url.toLowerCase().includes(query) || b.title.toLowerCase().includes(query));
+      listEl.replaceChildren();
+      if (!shown.length) {
+        listEl.innerHTML = `<div class="empty">${items.length ? 'Nenhum favorito encontrado.' : 'Nenhum favorito ainda. Use a estrela na barra de endereço ou Ctrl+D.'}</div>`;
+        return;
+      }
+      for (const b of shown) {
+        const row = document.createElement('div');
+        row.className = 'row';
+        const icon = document.createElement(b.favicon ? 'img' : 'span');
+        icon.className = 'icon';
+        if (b.favicon) {
+          icon.src = b.favicon;
+          icon.onerror = () => icon.replaceWith(Object.assign(document.createElement('span'), { className: 'icon' }));
+        }
+        const main = document.createElement('div');
+        main.className = 'main';
+        const a = document.createElement('a');
+        a.href = b.url;
+        a.textContent = b.title;
+        const sub = document.createElement('div');
+        sub.className = 'sub';
+        sub.textContent = b.url;
+        main.append(a, sub);
+
+        const rename = document.createElement('button');
+        rename.className = 'link';
+        rename.textContent = 'Renomear';
+        rename.onclick = async () => {
+          const title = prompt('Novo nome do favorito:', b.title);
+          if (title === null || !title.trim()) return;
+          await window.wolf.invoke('bookmarks:rename', b.url, title.trim());
+          load();
+        };
+        const remove = document.createElement('button');
+        remove.className = 'link';
+        remove.textContent = 'Remover';
+        remove.onclick = async () => {
+          await window.wolf.invoke('bookmarks:remove', b.url);
+          load();
+        };
+        row.append(icon, main, rename, remove);
+        listEl.append(row);
+      }
+    }
+
+    async function load() {
+      items = (await window.wolf.invoke('bookmarks:list')).slice().reverse();
+      render();
+    }
+    q.oninput = render;
+    load();
+  </script>
+</body>
+</html>

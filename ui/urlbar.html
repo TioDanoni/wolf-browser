@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; img-src 'self' http: https: data: wolf:; style-src 'self' 'unsafe-inline' wolf:">
+  <title>Barra de endereço</title>
+  <link rel="stylesheet" href="urlbar.css">
+  <link rel="stylesheet" href="wolf://app/theme.css">
+</head>
+<body>
+  <form id="drop">
+    <span id="site-icon"></span>
+    <input id="address" type="text" spellcheck="false" autocomplete="off" placeholder="Pesquisar ou digitar URL">
+    <button id="shield" type="button" hidden>
+      <svg viewBox="0 0 24 24"><path d="M12 3.5l7 2.5v5.5c0 4.4-3 7.9-7 9-4-1.1-7-4.6-7-9V6z"/></svg>
+      <span id="blocked-count"></span>
+    </button>
+    <button id="star" type="button" title="Adicionar aos favoritos (Ctrl+D)">
+      <svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.25 4.1 1 5.8L12 16.9l-5.25 2.7 1-5.8L3.5 9.7l5.9-.9z"/></svg>
+    </button>
+  </form>
+  <ul id="suggestions" hidden></ul>
+  <script src="urlbar.js"></script>
+</body>
+</html>

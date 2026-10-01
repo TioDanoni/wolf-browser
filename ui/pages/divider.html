@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Divisória</title>
+  <link rel="stylesheet" href="pages.css">
+  <link rel="stylesheet" href="theme.css">
+  <style>
+    html, body {
+      height: 100%;
+      min-height: 0;
+      overflow: hidden;
+      background: transparent;
+      user-select: none;
+    }
+    body { display: grid; place-items: center; cursor: col-resize; }
+    body.column { cursor: row-resize; }
+    .grip {
+      width: 4px;
+      height: 44px;
+      border-radius: 2px;
+      background: color-mix(in srgb, var(--text-dim) 45%, transparent);
+      transition: background 0.15s, height 0.15s;
+    }
+    body.column .grip { width: 44px; height: 4px; }
+    body:hover .grip, body.dragging .grip { background: var(--accent); height: 72px; }
+    body.column:hover .grip, body.column.dragging .grip { width: 72px; height: 4px; }
+  </style>
+</head>
+<body title="Arraste para ajustar · duplo clique: tamanhos iguais · botão direito: opções">
+  <div class="grip"></div>
+  <script>
+    let column = false;
+    let last = null;
+    window.wolf.on('divider', ({ dir }) => {
+      column = dir === 'column';
+      document.body.classList.toggle('column', column);
+    });
+    // Arrastar: a captura do ponteiro continua mandando o movimento mesmo fora da divisória.
+    document.body.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
+      document.body.setPointerCapture(e.pointerId);
+      document.body.classList.add('dragging');
+      last = column ? e.screenY : e.screenX;
+    });
+    document.body.addEventListener('pointermove', (e) => {
+      if (last === null) return;
+      const now = column ? e.screenY : e.screenX;
+      const delta = now - last;
+      if (Math.abs(delta) < 2) return;
+      last = now;
+      window.wolf.invoke('split:resize', delta);
+    });
+    const stop = () => {
+      last = null;
+      document.body.classList.remove('dragging');
+    };
+    document.body.addEventListener('pointerup', stop);
+    document.body.addEventListener('pointercancel', stop);
+    document.body.addEventListener('dblclick', () => window.wolf.invoke('split:reset'));
+    document.body.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      window.wolf.invoke('split:menu');
+    });
+  </script>
+</body>
+</html>
